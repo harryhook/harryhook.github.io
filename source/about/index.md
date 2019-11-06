@@ -1,5 +1,5 @@
 ---
-title: about
+title:
 date: 2019-10-18 15:56:05
 ---
 
