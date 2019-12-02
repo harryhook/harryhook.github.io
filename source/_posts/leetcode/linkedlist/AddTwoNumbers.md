@@ -4,9 +4,11 @@ date: 2019-12-02 17:07:23
 tags: [leetcode, linkedlist]
 ---
 
-You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
+**两链表相加， 以链表形式顺序输出结果**
 
 <!-- more -->
+
+You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order and each of their nodes contain a single digit. Add the two numbers and return it as a linked list.
 
 # Example
 
