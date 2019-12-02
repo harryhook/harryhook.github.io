@@ -157,7 +157,6 @@ class FlyTiger implements ITiger {
 # JDK中的应用
 
 ```java
-
 java.util.Arrays#asList()
 
 //InputStreamReader 继承了Readr类，但要创建它的对象必须在构造函数中传入一个InputStream）(InputStream→Reader 字节到字符)

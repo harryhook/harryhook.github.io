@@ -38,6 +38,7 @@
     </div>
     <% if (index){ %>
     <div class="article-info article-info-index">
+
       <%if(post.top){%>
         <div class="article-pop-out tagcloud">
           <a class="">置顶</a>
@@ -55,7 +56,9 @@
     <% } %>
   </div>
   <% if (!index){ %>
-    <%- partial('post/nav') %>
+    <span id="busuanzi_container_page_pv">
+      总阅读量 <span id="busuanzi_value_page_pv"></span> 次
+    </span>
   <% } %>
 </article>
 <%- partial('_partial/toc') %>
