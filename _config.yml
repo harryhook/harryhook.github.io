@@ -85,7 +85,9 @@ theme: yelee
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@github.com:HarryHook/harryhook.github.io.git
+  repo: 
+    github: git@github.com:HarryHook/harryhook.github.io.git
+    coding: git@e.coding.net:harryhook/blog.git
   branch: master
   
 toc:
@@ -95,10 +97,11 @@ search:
   path: search.xml
   field: post
 
+# 自动生成sitemap
 sitemap:
   path: sitemap.xml
-  tag: true
-  category: true
+baidusitemap:
+  path: baidusitemap.xml
 
 
 qiniu:
