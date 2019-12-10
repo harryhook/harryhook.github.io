@@ -92,7 +92,7 @@ show_count: true
 ## Add comment count after article title
 
 disqus: 
-  on: true
+  on: false
   shortname: harryhook
   # https://help.disqus.com/customer/en/portal/articles/466208-what-s-a-shortname-
   # It is unnecessary to enable disqus here if 
@@ -204,9 +204,7 @@ tagcloud: true
 
 # Blogroll, Link exchange | 友情链接
 # friends:
-#   学长博客: http://mrdear.cn/
-#   学长GitHub: https://github.com/nl101531
-#   Shazoo: https://oi.0w0.io/
+#    阿汤哥的鼎: https://includeios.github.io/
 friends: false
 
 #是否开启“关于我”。
@@ -316,6 +314,15 @@ progressBar:
   on: true
   type: "minimal"  # Keep Quotes | 保留引号避免出错
   color: yellow
+
+gitalk:
+  enable: true
+  owner: harryhook
+  repo: harryhook.github.io
+  admin: HarryHook
+  clientID: 74dc42ae544dae724ca4
+  clientSecret: 0b40598c63d2f0fd1f47176355d2f03024ec0546
+  distractionFreeMode: true
 
 CDN:
   jquery: //cdn.bootcss.com/jquery/2.2.4/jquery.min.js
