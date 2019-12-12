@@ -63,9 +63,7 @@
 </article>
 <%- partial('_partial/toc') %>
 
-<% if (!index && theme.share.on && (post.share != false || post.share)){ %>
-    <%- partial('post/share') %>
-<% } %>
+
 
 <% if (!index && post.comments){ %>
     <% if (theme.duoshuo.on) { %>
