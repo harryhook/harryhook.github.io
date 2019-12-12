@@ -104,25 +104,6 @@ baidusitemap:
   path: baidusitemap.xml
 
 
-qiniu:
-    offline: false
-    sync: true
-    bucket: harryhook-hexo
-    # secret_file: sec/qn.json or C:
-    access_key: J-ybxcj2XTQEmg6YKRQqQ9lkkasXiaCi0HcZtqWX
-    secret_key: G3cEjtO_pysJ6Q7hGvTAI9YYUnWcgKVSI8yBftAS
-    dirPrefix: 
-    urlPrefix: http://q1vkhdn90.bkt.clouddn.com
-    up_host: http://upload.qiniu.com
-    local_dir: cdn
-    update_exist: true
-    image: 
-      folder: images
-      extend: 
-    js:
-      folder: js
-    css:
-      folder: css
 
 
 
