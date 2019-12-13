@@ -296,7 +296,7 @@ baidu_tongji: 3079c0591c6effd277707fa1e2fb142e
 # 不蒜子网站计数设置
 # http://ibruce.info/2015/04/04/busuanzi/
 visit_counter:
-  enable: true
+  on: true
   site_visit: true # 站点访问量
   page_visit: true # 页面阅读量
 
