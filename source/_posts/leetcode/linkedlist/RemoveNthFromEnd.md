@@ -56,32 +56,31 @@ Given n will always be valid.
  *     ListNode(int x) { val = x; }
  * }
  */
-class Solution {
-    public ListNode removeNthFromEnd(ListNode head, int n) {
-    
-        if(head==null) return head;
-        
+public ListNode removeNthFromEnd(ListNode head, int n) {
+
+        if (head == null) return head;
+
         ListNode first = head;
         ListNode dummyHead = new ListNode(-1);
         dummyHead.next = head;
-        
-        while(n-- > 0 && first != null) {
+
+        while (n-- > 0 && first != null) {
             first = first.next;
         }
-        
+
         ListNode slow = head;
         ListNode pre = dummyHead;
-        
-        while(first!=null) {
+
+        while (first != null) {
             pre = slow;
             slow = slow.next;
             first = first.next;
         }
-        
+
         pre.next = slow.next;
-        
+
         return dummyHead.next;
-    }
 }
+
 ```
 

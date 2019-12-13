@@ -47,34 +47,32 @@ Medium 难度题，两个链表相加， 同步遍历两个链表结点， 将�
  *     ListNode(int x) { val = x; }
  * }
  */
-class Solution {
-    public ListNode addTwoNumbers(ListNode head1, ListNode head2) {
-    
-        ListNode dummyHead = new ListNode(-1);
-        ListNode p = head1;
-        ListNode q = head2;
-        ListNode s = dummyHead;
+public ListNode addTwoNumbers(ListNode head1, ListNode head2) {
 
-        int carry = 0, sum = 0;
-        
-        while (p != null || q != null) {
-        
-            int x = (p==null? 0: p.val);
-            int y = (q==null? 0: q.val);
-            sum = carry + x + y;
-            s.next = new ListNode(sum % 10);
-            s = s.next;
-            carry = sum / 10;
-            if(p!= null)  p = p.next;
-            if(q!=null) q = q.next;
-            
-        }
-        
-        if(carry != 0) {
-            s.next = new ListNode(carry);
-        }
-        
-        return dummyHead.next;
+    ListNode dummyHead = new ListNode(-1);
+    ListNode l1 = head1;
+    ListNode l2 = head2;
+    ListNode s = dummyHead;
+
+    int carry = 0, sum = 0;
+
+    while (l1 != null || l2 != null) {
+
+        int x = (l1 == null ? 0 : l1.val);
+        int y = (l2 == null ? 0 : l2.val);
+        sum = carry + x + y;
+        s.next = new ListNode(sum % 10);
+        s = s.next;
+        carry = sum / 10;
+        if (l1 != null) l1 = l1.next;
+        if (l2 != null) l2 = l2.next;
+
     }
+
+    if (carry != 0) {
+        s.next = new ListNode(carry);
+    }
+
+    return dummyHead.next;
 }
 ```
