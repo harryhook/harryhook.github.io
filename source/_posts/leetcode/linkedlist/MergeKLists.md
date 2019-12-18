@@ -1,5 +1,5 @@
 ---
-title: MergeKLists
+title: LeetCode 23. Merge k Sorted Lists
 date: 2019-12-18 22:53:55
 tags: [leetcode, linkedlist]
 categories: [刷题]
