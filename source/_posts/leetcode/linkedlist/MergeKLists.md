@@ -89,11 +89,11 @@ class Solution {
         ListNode dummyHead = new ListNode(-1);
         ListNode tail = dummyHead;
         
-        // 进行比较
         while(!queue.isEmpty()) {
             tail.next = queue.poll();
             tail = tail.next;
             if(tail.next != null) {
+                // 利用优先级队列进行比较
                 queue.add(tail.next);
             }
         }
