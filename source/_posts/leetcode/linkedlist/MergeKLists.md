@@ -51,10 +51,8 @@ mergeTwoLists(ListNode l1, ListNode l2); 参见[合并两个有序联链表](/20
 * 重复之前的步骤， 直到队列为空。
 
 示意图如下：
+![示例](/demo.jpg)
 
-![示例1](/demo1.jpg)
-![示例2](/demo2.jpg)
-![示例3](/demo3.jpg)
 
 # 代码
 
