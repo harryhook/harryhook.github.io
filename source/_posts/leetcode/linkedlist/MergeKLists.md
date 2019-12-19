@@ -76,7 +76,7 @@ class Solution {
             }
         });
         
-        // 所有链表的头结点保存在优先级队列
+        // 所有链表的头结点插入优先级队列
         for(ListNode node : lists) {
             if(node != null) {
                 queue.add(node);
@@ -91,7 +91,6 @@ class Solution {
             tail.next = queue.poll();
             tail = tail.next;
             if(tail.next != null) {
-                // 利用优先级队列进行比较
                 queue.add(tail.next);
             }
         }
