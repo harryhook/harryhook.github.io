@@ -93,4 +93,13 @@
             yiliaConfig.fancybox = false;
         <% } %>
     </script>
+
+    <% if(theme.gitalk.enable && theme.gitalk.distractionFreeMode){ %>
+      <%- partial('post/gitalk', {
+      key: post.slug,
+      title: post.title,
+      url: config.url+url_for(post.path)
+      }) %>
+    <% } %>
+
 <% } %>
