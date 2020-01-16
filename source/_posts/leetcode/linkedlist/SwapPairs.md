@@ -19,9 +19,11 @@ You may not modify the values in the list's nodes, only nodes itself may be chan
 
 # 思路
 题意为两两交换链表中的元素，**不能改变链表的值**， 而是要交换链表结点；
+
 具体思路：
-cur为待交换结点的前一个结点，用于保存头结点信息
-当两个节点交换完毕后， cur指向下一次待交换两个节点的前一个结点
+> cur为待交换结点的前一个结点，用于链接交换后的结点;
+> 当两个结点交换完毕后， cur指向下一次待交换两个结点的前一个结点;
+
 示意图如下：
 
 ![demo](/demo.jpg)
