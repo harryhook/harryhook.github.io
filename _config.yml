@@ -87,7 +87,7 @@ deploy:
   type: git
   repo: 
     github: git@github.com:HarryHook/harryhook.github.io.git
-    coding: git@e.coding.net:harryhook/harryhook.git
+    coding: git@e.coding.net:harryhook/blog.git
   branch: master
   
 toc:
