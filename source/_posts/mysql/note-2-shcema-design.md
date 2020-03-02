@@ -1,5 +1,5 @@
 ---
-title: 《高性能MySQL》-Schema设计与数据类型优化
+title: Schema设计与数据类型优化
 date: 2020-02-16 16:30:50
 tags: [MySQL]
 categories: [数据库]

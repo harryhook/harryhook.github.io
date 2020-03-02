@@ -1,5 +1,5 @@
 ---
-title: 《高性能MySQL》-1.架构与历史
+title: 1.MySQL架构与历史
 date: 2020-02-08 12:03:43
 tags: [MySQL]
 categories: [数据库]
