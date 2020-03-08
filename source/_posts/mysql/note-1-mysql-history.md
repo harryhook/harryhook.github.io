@@ -1,5 +1,5 @@
 ---
-title: 1.MySQL架构与历史
+title: MySQL架构与历史
 date: 2020-02-08 12:03:43
 tags: [MySQL]
 categories: [数据库]
