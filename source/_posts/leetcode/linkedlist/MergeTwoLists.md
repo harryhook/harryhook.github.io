@@ -2,7 +2,7 @@
 title: LeetCode 21. Merge Two Sorted Lists
 date: 2019-12-17 22:42:42
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 Merge two sorted linked lists and return it as a new list.The new list should be made by splicing together the nodes of the first two lists.
 

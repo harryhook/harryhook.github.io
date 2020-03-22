@@ -2,7 +2,7 @@
 title: LeetCode 23. Merge k Sorted Lists
 date: 2019-12-18 22:53:55
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 Merge k sorted linked lists and return it as one sorted list. Analyze and describe its complexity.

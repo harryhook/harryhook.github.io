@@ -2,7 +2,7 @@
 title: LeetCode 83.Remove Duplicates from Sorted List
 date: 2020-2-23 23:00:00
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 Given a sorted linked list, delete all duplicates such that each element appear only once.

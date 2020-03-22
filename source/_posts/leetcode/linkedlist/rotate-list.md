@@ -2,7 +2,7 @@
 title: LeetCode 61. Rotate List
 date: 2020-02-23 21:46:53
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 Given a linked list, rotate the list to the right by k places, where k is non-negative.

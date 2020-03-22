@@ -2,7 +2,7 @@
 title: LeetCode 86. Partition List
 date: 2020-02-26 22:56:12
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 Given a linked list and a value x, partition it such that all nodes less than x come before nodes greater than or equal to x.
 

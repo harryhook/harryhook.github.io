@@ -2,7 +2,7 @@
 title: LeetCode 25. Reverse Nodes In k Group
 date: 2020-02-23 17:50:54
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 Given a linked list, reverse the nodes of a linked list k at a time and return its modified list.

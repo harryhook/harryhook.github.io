@@ -2,7 +2,7 @@
 title: LeetCode 2. Add Two Numbers
 date: 2019-12-02 17:07:23
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 **两链表相加， 以链表形式顺序输出结果**

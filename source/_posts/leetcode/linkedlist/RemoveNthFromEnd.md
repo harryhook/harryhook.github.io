@@ -2,7 +2,7 @@
 title: LeetCode 19. Remove Nth From End of List
 date: 2019-12-09 19:07:58
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 Given a linked list, remove the n-th node from the end of list and return its head.

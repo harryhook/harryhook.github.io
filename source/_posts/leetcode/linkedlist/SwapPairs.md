@@ -2,7 +2,7 @@
 title: LeetCode 24. Swap Nodes in Pairs
 date: 2020-01-15 20:29:41
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 Given a linked list, swap every two adjacent nodes and return its head.

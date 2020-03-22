@@ -2,7 +2,7 @@
 title: LeetCode 82. Remove Duplicates from Sorted List II 
 date: 2020-02-23 23:25:03
 tags: [leetcode, linkedlist]
-categories: [刷题]
+categories: [每周一题]
 ---
 
 Given a sorted linked list, delete all nodes that have duplicate numbers, leaving only distinct numbers from the original list.
