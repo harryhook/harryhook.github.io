@@ -67,7 +67,7 @@ Note: Do not modify the linked list.
         while(fast != null && fast.next != null) {
             fast = fast.next.next;
             slow = slow.next;
-            	// 快慢指针相遇
+            // 快慢指针相遇
             if(slow == fast) {
                 break;
             }
