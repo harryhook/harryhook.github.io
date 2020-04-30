@@ -86,10 +86,10 @@ theme: yelee
 deploy:
 - type: git
   repo: 
-    github: git@github.com:harryhook/harryhook.github.io.git
+    github: git@github.com:HarryHook/harryhook.github.io.git
     coding: git@e.coding.net:harryhook/blog.git
   branch: master
-- type: baidu_url_submitter   
+- type: baidu_url_submitter
   
 toc:
   maxDepth: 3
