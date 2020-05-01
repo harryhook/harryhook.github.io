@@ -13,7 +13,7 @@ timezone: Asia/Shanghai
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://harryhook.xyz
+url: https://coderunning.fun
 root: /
 
 # permalink: :title/
@@ -86,7 +86,7 @@ theme: yelee
 deploy:
 - type: git
   repo: 
-    github: git@github.com:HarryHook/harryhook.github.io.git
+    github: git@github.com:harryhook/harryhook.github.io.git
     coding: git@e.coding.net:harryhook/blog.git
   branch: master
 - type: baidu_url_submitter
@@ -106,7 +106,7 @@ baidusitemap:
 
 baidu_url_submit:
   count: 10              # 提交最新的多少个链接
-  host: harryhook.xyz    # 在百度站长平台中添加的域名
+  host: coderunning.fun    # 在百度站长平台中添加的域名
   token: 6Jyk9N0W5yAzVaMN      # 秘钥
   path: baidu_urls.txt   # 文本文档的地址， 新链接会保存在此文本文档里
 
