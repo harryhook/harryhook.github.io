@@ -319,7 +319,7 @@ gitalk:
   enable: true
   owner: harryhook
   repo: harryhook.github.io
-  admin: HarryHook
+  admin: harryhook
   clientID: 74dc42ae544dae724ca4
   clientSecret: 0b40598c63d2f0fd1f47176355d2f03024ec0546
   distractionFreeMode: true
