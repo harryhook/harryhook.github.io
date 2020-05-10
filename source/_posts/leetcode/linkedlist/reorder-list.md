@@ -36,7 +36,7 @@ You may not modify the values in the list's nodes, only nodes itself may be chan
 
 1. 将链表分成两半(利用快慢指针找到中间结点)
 2. 后半部分链表翻转
-3. 同时遍历两个链表将对应的结点进行链接， l0-ln, l1->ln-1
+3. 同时遍历两个链表将对应的结点进行链接， l0->ln, l1->ln-1
 
 # 代码
 
