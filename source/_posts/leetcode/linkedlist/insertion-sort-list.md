@@ -48,15 +48,15 @@ Sort a linked list using insertion sort.
         while(cur != null) {
         	// 下次遍历的起点
             next = cur.next;
-            	// 找到待插入的结点
+            // 找到待插入的结点
             while(pre.next != null && pre.next.val < cur.val) {
                 pre = pre.next;
             }
             	
-            	// 断链
+            // 断链
             cur.next = pre.next;
             pre.next = cur;
-            	// pre 回到虚拟头结点重新遍历
+            // pre 回到虚拟头结点重新遍历
             pre = dummyHead;            
             cur = next;
         }
