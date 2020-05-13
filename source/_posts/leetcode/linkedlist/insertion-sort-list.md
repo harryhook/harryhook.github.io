@@ -1,5 +1,5 @@
 ---
-title: LeetCde 147. Insertion Sort List
+title: LeetCode 147. Insertion Sort List
 date: 2020-05-12 19:59:20
 tags: [leetcode, linkedlist]
 categories: [每周一题]
@@ -30,6 +30,10 @@ Output: -1->0->3->4->5
 1.  利用虚拟头结点使得所有结点按同样的逻辑处理；
 2.  通过 pre 指针遍历链表， 找到第一个比之前结点小的结点， 记录 pre 信息；
 3.  进行插入操作。
+
+# 示意图
+
+![示意图](/插入排序.png)
 
 # 代码
 
