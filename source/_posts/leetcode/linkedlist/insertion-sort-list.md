@@ -11,13 +11,16 @@ Sort a linked list using insertion sort.
 
 # Example 1
 
-Input: 4->2->1->3
-Output: 1->2->3->4
+> Input: 4->2->1->3
 
-# Example 2:
+> Output: 1->2->3->4
 
-Input: -1->5->3->4->0
-Output: -1->0->3->4->5
+# Example 2
+
+> Input: -1->5->3->4->0
+
+> Output: -1->0->3->4->5
+
 
 ![示意图](/example.gif)
 
