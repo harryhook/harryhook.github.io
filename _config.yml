@@ -34,7 +34,8 @@ skip_render:
 new_post_name: :title.md # File name of new posts
 default_layout: post
 titlecase: false # Transform title into titlecase
-external_link.enable: true # Open external links in new tab
+external_link:
+  enable: true # Open external links in new tab
 filename_case: 0
 render_drafts: false
 post_asset_folder: true
@@ -45,7 +46,7 @@ highlight:
   line_number: true
   auto_detect: true
   tab_replace:
-  
+
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
@@ -54,10 +55,10 @@ index_generator:
   path: ''
   per_page: 10
   order_by: -date
-  
+
 # Category & Tag
 default_category: categorized
-category_map:   
+category_map:
   编程: programming
   生活: life
   其他: other
@@ -84,11 +85,11 @@ theme: yelee
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type: git
-  repo: 
+- type: git
+  repo:
     github: git@github.com:harryhook/harryhook.github.io.git
   branch: master
-
+- type: baidu_url_submitter
 
 toc:
   maxDepth: 3
@@ -103,6 +104,11 @@ sitemap:
 baidusitemap:
   path: baidusitemap.xml
 
+baidu_url_submit:
+  count: 10              # 提交最新的多少个链接
+  host: coderunning.fun    # 在百度站长平台中添加的域名
+  token: 6Jyk9N0W5yAzVaMN      # 秘钥
+  path: baidu_urls.txt   # 文本文档的地址， 新链接会保存在此文本文档里
 
 
 
