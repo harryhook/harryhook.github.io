@@ -109,7 +109,7 @@ mysql> select * from users;
 - DB_ROLL_PTR:7-byte，回滚指针，也就是指向这个记录的 Undo Log 信息。
 - DB_TRX_ID:6-byte，操作这个数据的事务 ID，也就是最后一个对该数据进行插入或更新的事务 ID。
 
-![%E4%B8%80%E6%96%87%E5%90%83%E9%80%8F%20MVCC%205a7fc807a34143159d45b9da9e5178d7/Untitled.png](%E4%B8%80%E6%96%87%E5%90%83%E9%80%8F%20MVCC%205a7fc807a34143159d45b9da9e5178d7/Untitled.png)
+![undolog](/undolog.png)
 
 ### undo log
 
@@ -117,7 +117,8 @@ InnoDB 将行记录快照保存在了 Undo Log 里，我们可以在回滚段中
 
 由版本链组成的视图
 
-![%E4%B8%80%E6%96%87%E5%90%83%E9%80%8F%20MVCC%205a7fc807a34143159d45b9da9e5178d7/mvcc.svg](%E4%B8%80%E6%96%87%E5%90%83%E9%80%8F%20MVCC%205a7fc807a34143159d45b9da9e5178d7/mvcc.svg)
+
+![MVCC](/mvcc.svg)
 
 ### READ VIEW
 
