@@ -43,7 +43,7 @@ begin;
 select * from test;
 ```
 
-在 RR 级别下同时开启事务 1 与事务 2， 先执行事务 1 的 update 的语句后， 事务 2 查询会得到
+在 RR 级别下同时开启事务 1 与事务 2， 先执行事务 1 的 update 的语句并进行事务提交， 事务 2 查询会得到
 
 ```java
 +----+--------+-----+
@@ -56,7 +56,9 @@ select * from test;
 +----+--------+-----+
 ```
 
-这是因为 RR 级别下不可重复读的特性使得事务在查询时始终都得到相同的结果， 再往深研究其实是 MVCC 机制发挥作用。同样的语句在 RC 级别下，事务 1 执行更新语句commit后，事务 2 的查询结果是：
+这是因为 RR 级别下不可重复读的特性使得事务在查询时始终都得到相同的结果， 再往深研究其实是 MVCC 机制发挥作用。
+
+同样的语句在 RC 级别下，事务 1 执行更新语句commit后，事务 2 的查询结果是：
 
 ```java
 ---事务 1 更新前
@@ -69,7 +71,7 @@ mysql> select * from users;
 |  8 | 小东   | 20  |
 | 12 | 张三   | 21  |
 +----+--------+-----+
----事务 1 更新后
+---事务 1 更新后，事务2 进行查询
 mysql> select * from users;
 +----+--------+-----+
 | id | name   | age |
@@ -109,7 +111,7 @@ mysql> select * from users;
 - DB_ROLL_PTR:7-byte，回滚指针，也就是指向这个记录的 Undo Log 信息。
 - DB_TRX_ID:6-byte，操作这个数据的事务 ID，也就是最后一个对该数据进行插入或更新的事务 ID。
 
-![undolog](/undolog.png)
+![undolog.png](undolog.png)
 
 ### undo log
 
@@ -117,30 +119,27 @@ InnoDB 将行记录快照保存在了 Undo Log 里，我们可以在回滚段中
 
 由版本链组成的视图
 
-
-![MVCC](/mvcc.svg)
+![mvcc.svg](mvcc.svg)
 
 ### READ VIEW
 
-read view 是在 SQL 语句执行之前创建的，在 read view 中会保存：
+read view 是在 SQL 语句执行之前创建的，通过 `read view` 可以将所有事务分为三部分：`trx_ids`,`min_trx_id`,`max_trx_id`，其中：
 
-- `low_limit_id` - 创建 `read view` 时 **尚未提交** 的事务中的 **最大** 的事务 ID
-- `up_limit_id` - 创建 `read view` 时 **尚未提交** 的事务中的 **最小** 的事务 ID
-- `trx_ids` - 创建 `read view` 时 **尚未提交** 的事务列表
-- 
+- `trx_ids` - 创建 `read view` 时 **尚未提交** 的活跃事务列表
+- `max_trx_id` - 创建 `read view` 时 **尚未提交** 的活跃事务列表中的 **最大** 的事务 ID
+- `low_trx_id` - 创建 `read view` 时 **尚未提交** 的活跃事务列表中的 **最小** 的事务 ID
+- `creator_trx_id`：表示生成该ReadView的事务的事务id
 
-通过 `read view` 可以将所有事务分为三组：
 
-- `trx_id < up_limit_id` - 创建 `read view` 时已经提交了的事务
-- `up_limit_id <= trx_id <= low_limit_id` - 创建 `read view` 时正常执行的事务
-- `trx_id > low_limit_id` - 创建 `read view` 时还未创建的事务
 
-此时，我们可以根据 `read view` 来判断行记录的可见性：
+### readview 是如何工作
 
-1. 当记录的 `DB_TRX_ID` 小于 `read vew` 的 `up_limit_id` 时说明该记录在创建 `read view` 之前就已经提交，记录可见
-2. 如果记录的 `DB_TRX_ID` 和事务创建者的 `TRX_ID` 一样时，记录可见
-3. 当记录的 `DB_TRX_ID` 大于 `read vew` 的 `up_limit_id` 时，说明该记录在创建 `read view` 之后进行的新建事务修改提交的，记录不可见
-4. 如果记录对应的 `DB_TRX_ID` 在 `read view` 的 `trx_ids` 里面，那么该记录也是不可见的, trx_ids的这些事务都未提交。
+- `trx_id` = `creator_trx_id`, 表明是当前事务在访问自身修改过的记录，使用该版本可以被当前事务访问
+- `trx_id < min_trx_id` - 创建 `read view` 时已经提交了的事务，表明生成该版本的事务在当前事务生成ReadView前已经提交，所以该版本可以被当前事务访问。
+- `min_trx_id <= trx_id <= max_trx_id` , 需要判断当前trx_id是否是活跃的事务id，如果在，说明创建ReadView时生成该版本的事务还是活跃的，该版本不可以当前事务访问；如果不在，说明创建ReadView时生成该版本的事务已经被提交，该版本可以被当前事务访问
+- `trx_id > max_trx_id` - 创建 `read view` 时还未创建的事务，表明事务是在readview 生成后才开启的，所以该版本对当前事务也是不可见的
+
+![readview.png](readview.png)
 
 ### RR & RC 创建视图时机
 
@@ -150,4 +149,4 @@ read view 是在 SQL 语句执行之前创建的，在 read view 中会保存：
 
 # 总结
 
-`RC`、`RR` 两种隔离级别的事务在执行普通的读操作时，通过访问版本链的方法，使得事务间的读写操作得以并发执行，从而提升系统性能。`RC`、`RR` 这两个隔离级别的一个很大不同就是生成 `ReadView` 的时间点不同，`RC` 在每一次 `SELECT` 语句前都会生成一个 `ReadView`，事务期间会更新，因此在其他事务提交前后所得到的 `m_ids` 列表可能发生变化，使得先前不可见的版本后续又突然可见了。而 `RR` 只在事务的第一个 `SELECT` 语句时生成一个 `ReadView`，事务操作期间不更新。
+`RC`、`RR` 两种隔离级别的事务在执行普通的读操作时，通过访问版本链的方法，使得事务间的读写操作得以并发执行，从而提升系统性能。`RC`、`RR` 这两个隔离级别的一个很大不同就是生成 `ReadView` 的时间点不同，`RC` 在每一次 `SELECT` 语句前都会生成一个 `ReadView`，事务期间会更新，因此在其他事务提交前后所得到的 `trx_ids` 列表可能发生变化，使得先前不可见的版本后续又突然可见了。而 `RR` 只在事务的第一个 `SELECT` 语句时生成一个 `ReadView`，事务操作期间不更新。
