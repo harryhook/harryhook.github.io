@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="HarryHook" />
+
+
+
+<meta name="description" content="看下 B-Tree 索引在实际的数据查询中起到了什么作用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="B-Tree 索引实践">
+<meta property="og:url" content="https://coderunning.fun/2020/02/29/mysql/note4-btree-practice/index.html">
+<meta property="og:site_name" content="harryhook&#39;s blog">
+<meta property="og:description" content="看下 B-Tree 索引在实际的数据查询中起到了什么作用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-02-29T10:20:42.000Z">
+<meta property="article:modified_time" content="2022-11-13T03:58:14.892Z">
+<meta property="article:author" content="HarryHook">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="harryhook&#39;s blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/kagami.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/yellow/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>B-Tree 索引实践 | harryhook&#39;s blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?3079c0591c6effd277707fa1e2fb142e";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/me.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">分类&amp;标签</a></li>
+                        
+                            <li><a href="/about/">关于</a></li>
+                        
+                            <li><a href="/running/">跑步</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="noopener" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java%E5%AF%B9%E8%B1%A1/" rel="tag">Java对象</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPool/" rel="tag">ThreadPool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linkedlist/" rel="tag">linkedlist</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">行为型模式</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+
+                
+                
+                <section class="switch-part switch-part3">
+                
+                    <div id="js-aboutme">会写点代码的跑步爱好者</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/me.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">分类&amp;标签</a></li>
+                
+                    <li><a href="/about/">关于</a></li>
+                
+                    <li><a href="/running/">跑步</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/note4-btree-practice" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/02/29/mysql/note4-btree-practice/" class="article-date">
+      <time datetime="2020-02-29T10:20:42.000Z" itemprop="datePublished">2020-02-29</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      B-Tree 索引实践
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>看下 B-Tree 索引在实际的数据查询中起到了什么作用。</p>
+<span id="more"></span>
+<h1>准备测试数据</h1>
+<h2 id="新建表">新建表</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">create table <span class="title function_">tb_user</span><span class="params">(</span></span><br><span class="line"><span class="params">  id <span class="type">int</span> auto_increment primary key,</span></span><br><span class="line"><span class="params">  name varchar(<span class="number">10</span>)</span>,</span><br><span class="line">  birth date</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<h2 id="利用存储过程造数据">利用存储过程造数据</h2>
+<p>存储过程可以理解为 MySQL 的一个函数， 调用存储过程就可以执行函数中相应的操作；</p>
+<p>在创建存储过程之前需要对 “,” 特殊处理下， 因为MySQL 将 “,” 作为一条语句的终结符号，为了是创建的存储过程中的 “,” 生效， 需要提前使用 delimiter 将终结符 “,” 替换成其他符号。</p>
+<p>比如使用 <strong>delimiter $$</strong>， 就将 “,” 替换成了 $$。</p>
+<p>创建生成随机字符串与随机数生成的方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">delimiter $$</span><br><span class="line"># 生成随机字符串</span><br><span class="line">create function <span class="title function_">rand_str</span><span class="params">(n <span class="type">int</span>)</span> returns <span class="title function_">varchar</span><span class="params">(<span class="number">10</span>)</span></span><br><span class="line">begin</span><br><span class="line">  declare CHARS <span class="title function_">char</span><span class="params">(<span class="number">52</span>)</span> <span class="keyword">default</span> <span class="string">&#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#x27;</span>;</span><br><span class="line">  declare result <span class="title function_">varchar</span><span class="params">(<span class="number">255</span>)</span> <span class="keyword">default</span> <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  declare i <span class="type">int</span> <span class="keyword">default</span> <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">while</span> i &lt; n <span class="keyword">do</span></span><br><span class="line">    <span class="type">set</span> <span class="variable">result</span> <span class="operator">=</span> concat(result, substr(CHARS, floor(<span class="number">1</span> + RAND()*<span class="number">52</span>), <span class="number">1</span>));</span><br><span class="line">    <span class="type">set</span> <span class="variable">i</span> <span class="operator">=</span> i + <span class="number">1</span>;</span><br><span class="line">  end <span class="keyword">while</span>;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">end</span><br><span class="line">$$</span><br><span class="line"></span><br><span class="line"># 生成随机数(i &lt;= R &lt; j)</span><br><span class="line">create function <span class="title function_">rand_num</span><span class="params">(i <span class="type">int</span>, j <span class="type">int</span>)</span> returns <span class="type">int</span></span><br><span class="line">begin</span><br><span class="line">  <span class="keyword">return</span> floor(i + rand() * (j - i));</span><br><span class="line">end</span><br><span class="line">$$</span><br><span class="line"></span><br><span class="line">delimiter ;</span><br></pre></td></tr></table></figure>
+<p>创建测试数据生成的存储过程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">delimiter $$</span><br><span class="line">create procedure <span class="title function_">insert_tb_user</span><span class="params">(c <span class="type">int</span>)</span></span><br><span class="line">begin</span><br><span class="line">  declare start_date <span class="type">int</span> <span class="keyword">default</span> <span class="title function_">TO_DAYS</span><span class="params">(STR_TO_DATE(<span class="string">&#x27;1970-01-1&#x27;</span>,<span class="string">&#x27;%Y-%m-%e&#x27;</span>)</span>);</span><br><span class="line">  declare end_date <span class="type">int</span> <span class="keyword">default</span> <span class="title function_">TO_DAYS</span><span class="params">(CURDATE()</span>);</span><br><span class="line">  declare i <span class="type">int</span> <span class="keyword">default</span> <span class="number">0</span>;</span><br><span class="line">  <span class="type">set</span> <span class="variable">autocommit</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">  repeat</span><br><span class="line">    <span class="type">set</span> <span class="variable">i</span> <span class="operator">=</span> i + <span class="number">1</span>;</span><br><span class="line">    insert into <span class="title function_">tb_user</span><span class="params">(name, birth)</span> values(rand_str(<span class="number">10</span>), FROM_DAYS(rand_num(start_date, end_date)));</span><br><span class="line">  <span class="type">until</span> <span class="variable">i</span> <span class="operator">=</span> c end repeat;</span><br><span class="line">  <span class="type">set</span> <span class="variable">autocommit</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">end</span><br><span class="line">$$</span><br><span class="line">delimiter ;</span><br></pre></td></tr></table></figure>
+<p>调用存储过程生成一百万条随机数据：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call <span class="title function_">insert_tb_user</span><span class="params">(<span class="number">1000000</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p>可能需要几分钟的时间，我的电脑上生成一百万条数据花费 286 秒。</p>
+<h1>使用主键查询</h1>
+<p>为了能更细致地看到每条语句的耗时， 我们需要把 profiles 打开</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; set profiling=<span class="number">1</span>;</span><br><span class="line">Query OK, <span class="number">0</span> rows affected, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from tb_user <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">10000</span>;</span><br><span class="line">+-------+-----------+------------+</span><br><span class="line">| id    | name      | birth    |</span><br><span class="line">+-------+-----------+------------+</span><br><span class="line">| <span class="number">10000</span> | jSMfqpAKV | <span class="number">1994</span>-<span class="number">01</span>-<span class="number">25</span> |</span><br><span class="line">+-------+-----------+------------+</span><br><span class="line"><span class="number">1</span> row in <span class="title function_">set</span> <span class="params">(<span class="number">0.00</span> sec)</span></span><br><span class="line"></span><br><span class="line">mysql&gt; show profiles;</span><br><span class="line">+----------+------------+-------------------------------------------+</span><br><span class="line">| Query_ID | Duration   | Query                                     |</span><br><span class="line">+----------+------------+-------------------------------------------+</span><br><span class="line">|        <span class="number">1</span> | <span class="number">0.0</span><span class="number">.00027100</span> | select * from tb_user <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">10000</span>  |</span><br><span class="line">+----------+------------+-------------------------------------------+</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>可以看到使用主键查询时耗时 <strong>0.271毫秒</strong></p>
+<p>看下当前 tb_user 的索引情况</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show index from tb_user\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">        Table: tb_user</span><br><span class="line">   Non_unique: <span class="number">0</span></span><br><span class="line">     Key_name: PRIMARY</span><br><span class="line"> Seq_in_index: <span class="number">1</span></span><br><span class="line">  Column_name: id # 索引列为 id 列</span><br><span class="line">    Collation: A</span><br><span class="line">  Cardinality: <span class="number">978848</span></span><br><span class="line">     Sub_part: NULL</span><br><span class="line">       Packed: NULL</span><br><span class="line">         Null:</span><br><span class="line">   Index_type: BTREE # 主键索引也是 B-Tree 索引</span><br><span class="line">      Comment:</span><br><span class="line">Index_comment:</span><br><span class="line"><span class="number">1</span> row in <span class="title function_">set</span> <span class="params">(<span class="number">0.00</span> sec)</span></span><br><span class="line"></span><br><span class="line">mysql&gt; explain select * from tb_user <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">10000</span>\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: const</span><br><span class="line">possible_keys: PRIMARY </span><br><span class="line">          key: PRIMARY   # 用到了主键索引</span><br><span class="line">      key_len: <span class="number">4</span></span><br><span class="line">          ref: const</span><br><span class="line">         rows: <span class="number">1</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: NULL</span><br></pre></td></tr></table></figure>
+<h1>不使用索引查询</h1>
+<p>接下来我们根据 <strong>name</strong> 去查询数据， name 所在的字段现在还没有索引</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from tb_user <span class="type">where</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&#x27;jSMfqpAKV&#x27;</span>;</span><br><span class="line">+--------+-----------+------------+</span><br><span class="line">| id     | name      | birth      |</span><br><span class="line">+--------+-----------+------------+</span><br><span class="line">|  <span class="number">10000</span> | jSMfqpAKV | <span class="number">1994</span>-<span class="number">01</span>-<span class="number">25</span> |</span><br><span class="line">+--------+-----------+------------+</span><br><span class="line"><span class="number">2</span> rows in <span class="title function_">set</span> <span class="params">(<span class="number">0.20</span> sec)</span></span><br></pre></td></tr></table></figure>
+<p>在 osx 上 mysql 并不区分大小写， 索引查询到两条数据， 接下来我们看下具体的耗时</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+----------+------------+------------------------------------------------+</span><br><span class="line">| Query_ID | Duration   | Query                                          |</span><br><span class="line">+----------+------------+------------------------------------------------+</span><br><span class="line">|        <span class="number">2</span> | <span class="number">0.19593300</span> | select * from tb_user <span class="type">where</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&#x27;jSMfqpAKV&#x27;</span> |</span><br><span class="line">+----------+------------+------------------------------------------------+</span><br><span class="line"><span class="number">1</span> rows in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>相比于使用 id 的主键查询， name 查询的速度慢了近千倍</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show profile <span class="keyword">for</span> query <span class="number">2</span>;</span><br><span class="line">+----------------------+----------+</span><br><span class="line">| Status               | Duration |</span><br><span class="line">+----------------------+----------+</span><br><span class="line">| starting             | <span class="number">0.000050</span> |</span><br><span class="line">| checking permissions | <span class="number">0.000006</span> |</span><br><span class="line">| Opening tables       | <span class="number">0.000012</span> |</span><br><span class="line">| init                 | <span class="number">0.000023</span> |</span><br><span class="line">| System lock          | <span class="number">0.000007</span> |</span><br><span class="line">| optimizing           | <span class="number">0.000008</span> |</span><br><span class="line">| statistics           | <span class="number">0.000013</span> |</span><br><span class="line">| preparing            | <span class="number">0.000009</span> |</span><br><span class="line">| executing            | <span class="number">0.000002</span> |</span><br><span class="line">| Sending data         | <span class="number">0.195761</span> |   # 速度变慢的主要原因</span><br><span class="line">| end                  | <span class="number">0.000008</span> |</span><br><span class="line">| query end            | <span class="number">0.000004</span> |</span><br><span class="line">| closing tables       | <span class="number">0.000006</span> |</span><br><span class="line">| freeing items        | <span class="number">0.000016</span> |</span><br><span class="line">| cleaning up          | <span class="number">0.000008</span> |</span><br><span class="line">+----------------------+----------+</span><br></pre></td></tr></table></figure>
+<p>可以看到Sending data 是查询耗时的主要原因， 这个 Sending data 到底是什么东西？ 是传输数据吗？<br>
+<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/general-thread-states.html">MySQL官方手册</a>的说法是 线程正在读取并处理select语句选择的行数据，然后将数据发送给客户端。因为这个状态期间的操作偏重执行大量的<strong>磁盘访问(读取磁盘)</strong>，它通常是整个查询生命周期中运行时间最长的状态。 所以说导致查询耗时的主要原因还是磁盘 IO。</p>
+<h1>使用索引查询</h1>
+<p>接下来我们对 name 字段加上索引</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create index idx_tb_user_name on <span class="title function_">tb_user</span><span class="params">(name)</span>;</span><br><span class="line">Query OK, <span class="number">0</span> rows <span class="title function_">affected</span> <span class="params">(<span class="number">1.44</span> sec)</span></span><br><span class="line"></span><br><span class="line">-- 目前表中的索引</span><br><span class="line">mysql&gt; show index from tb_user\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">        Table: tb_user</span><br><span class="line">   Non_unique: <span class="number">0</span></span><br><span class="line">     Key_name: PRIMARY</span><br><span class="line"> Seq_in_index: <span class="number">1</span></span><br><span class="line">  Column_name: id</span><br><span class="line">    Collation: A</span><br><span class="line">  Cardinality: <span class="number">978848</span></span><br><span class="line">     Sub_part: NULL</span><br><span class="line">       Packed: NULL</span><br><span class="line">         Null:</span><br><span class="line">   Index_type: BTREE</span><br><span class="line">      Comment:</span><br><span class="line">Index_comment:</span><br><span class="line">*************************** <span class="number">2.</span> row ***************************</span><br><span class="line">        Table: tb_user</span><br><span class="line">   Non_unique: <span class="number">1</span></span><br><span class="line">     Key_name: idx_tb_user_name</span><br><span class="line"> Seq_in_index: <span class="number">1</span></span><br><span class="line">  Column_name: name</span><br><span class="line">    Collation: A</span><br><span class="line">  Cardinality: <span class="number">988297</span></span><br><span class="line">     Sub_part: NULL</span><br><span class="line">       Packed: NULL</span><br><span class="line">         Null: YES</span><br><span class="line">   Index_type: BTREE  # 可以在创建索引时默认的类型也是 BTREE 索引</span><br><span class="line">      Comment:</span><br><span class="line">Index_comment:</span><br><span class="line"><span class="number">2</span> rows in <span class="title function_">set</span> <span class="params">(<span class="number">0.00</span> sec)</span></span><br></pre></td></tr></table></figure>
+<p>继续刚才的查询语句：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from tb_user <span class="type">where</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&#x27;jSMfqpAKV&#x27;</span>;</span><br><span class="line"></span><br><span class="line">mysql&gt; show profiles;</span><br><span class="line">+----------+------------+------------------------------------------------+</span><br><span class="line">| Query_ID | Duration   | Query                                          |</span><br><span class="line">+----------+------------+------------------------------------------------+</span><br><span class="line">|        <span class="number">1</span> | <span class="number">0.00028700</span> | select * from tb_user <span class="type">where</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&#x27;jSMfqpAKV&#x27;</span> |</span><br><span class="line">|        <span class="number">2</span> | <span class="number">0.00027100</span> | select * from tb_user <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">10000</span>         |</span><br><span class="line">+----------+------------+------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<p>此时耗时只有 0.28 毫秒, 虽然和主键查询相差无几， 但仍然没有主键查询快， 这是因为用过 name 索引是二级索引， 在查询时二级索引不会保留具体的数据行，保留的是主键 id。 查询时会根据二级索引先查询到 id， 再根据主键 id 找到数据所在的行。</p>
+<h1>使用索引时的注意事项</h1>
+<h2 id="禁止在查询语句中使用表达式">禁止在查询语句中使用表达式</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from tb_user where id + <span class="number">1</span> = <span class="number">5</span>\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: ALL  # 全部查询</span><br><span class="line">possible_keys: NULL</span><br><span class="line">          key: NULL</span><br><span class="line">      key_len: NULL</span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: <span class="number">998195</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: Using where</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>可以看到使用表达式时索引是没有生效的。</p>
+<h2 id="避免将索引列作为参数">避免将索引列作为参数</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">--- 先对 birth 创建索引</span><br><span class="line"></span><br><span class="line">mysql&gt; create index idx_tb_user_birth on <span class="title function_">tb_user</span><span class="params">(birth)</span>;</span><br><span class="line">mysql&gt; select <span class="title function_">count</span><span class="params">(*)</span> from tb_user where <span class="title function_">YEAR</span><span class="params">(current_date)</span> - YEAR(birth) &gt;= <span class="number">18</span> \G;</span><br><span class="line"></span><br><span class="line">+----------+------------+-----------------------------------------------------------------------------------+</span><br><span class="line">| Query_ID | Duration   | Query                                                                             |</span><br><span class="line">+----------+------------+-----------------------------------------------------------------------------------+</span><br><span class="line">|       <span class="number">12</span> | <span class="number">0.14596000</span> | select <span class="title function_">count</span><span class="params">(*)</span> from tb_user where <span class="title function_">YEAR</span><span class="params">(current_date)</span> - YEAR(birth) &gt;= <span class="number">18</span>         |</span><br><span class="line">+----------+------------+-----------------------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+<p>可以看到索然 在 birth 字段上新增了索引， 但是查询耗时为 0.14 秒， 和之前没加索引查询的耗时是差不多的。</p>
+<h2 id="模糊查询时使用前缀索引">模糊查询时使用前缀索引</h2>
+<p>有时需要索引很长的字段时， 会让索引变的很大， 通常有两种做法， 一直是采用哈希索引， 另一种就是使用模糊查询。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt;  select * from tb_user where name like  <span class="string">&#x27;%jSMfq%&#x27;</span>;</span><br><span class="line">+--------+-----------+------------+</span><br><span class="line">| id     | name      | birth      |</span><br><span class="line">+--------+-----------+------------+</span><br><span class="line">| <span class="number">312246</span> | jsmfQLlVW | <span class="number">2017</span>-<span class="number">03</span>-<span class="number">03</span> |</span><br><span class="line">| <span class="number">654276</span> | jsmfQMmbv | <span class="number">2019</span>-<span class="number">12</span>-<span class="number">07</span> |</span><br><span class="line">| <span class="number">629126</span> | jSMfqmpLL | <span class="number">1991</span>-08-<span class="number">12</span> |</span><br><span class="line">...</span><br><span class="line">|  <span class="number">10000</span> | jSMfqpAKV | <span class="number">1994</span>-<span class="number">01</span>-<span class="number">25</span> |</span><br><span class="line">| <span class="number">298551</span> | jsmfQPAkv | <span class="number">1995</span>-<span class="number">12</span>-<span class="number">22</span> |</span><br><span class="line">| <span class="number">230069</span> | JSmFqPcQW | <span class="number">1982</span>-<span class="number">06</span>-<span class="number">15</span> |</span><br><span class="line">+--------+-----------+------------+</span><br><span class="line"><span class="number">81</span> rows in <span class="title function_">set</span> <span class="params">(**<span class="number">0.16</span>** sec)</span> --耗时 <span class="number">0.16</span> 秒</span><br><span class="line"></span><br><span class="line">mysql&gt; explain select * from tb_user where name like  <span class="string">&#x27;%jSMfq%&#x27;</span>\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: ALL # 全表扫描</span><br><span class="line">possible_keys: NULL</span><br><span class="line">          key: NULL</span><br><span class="line">      key_len: NULL</span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: <span class="number">998195</span></span><br><span class="line">     filtered: <span class="number">11.11</span></span><br><span class="line">        Extra: Using where</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; explain select * from tb_user where name like  <span class="string">&#x27;jSMfq%&#x27;</span>\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: range  # 范围查询</span><br><span class="line">possible_keys: idx_tb_user_name</span><br><span class="line">          key: idx_tb_user_name  </span><br><span class="line">      key_len: <span class="number">13</span></span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: <span class="number">11</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: Using index condition # 使用索引进行条件查询</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这是由于 BTREE 索引的数据是有序的使用 like '%xxx%'时是无法使用索引的。</p>
+<h2 id="不要对每一列都创建单独的索引">不要对每一列都创建单独的索引</h2>
+<p>为每个列创建单独的索引大部分情况下并不能提升 MySQL 的查询性能，在 MySQL5.0 及更新的版本中，引入了索引合并的策略， 将每列查询的结果进行合并， 举个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain  select * from tb_user <span class="type">where</span> <span class="variable">id</span> <span class="operator">=</span> <span class="number">10000</span> or name like <span class="string">&#x27;jSMfqp%&#x27;</span>\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: index_merge</span><br><span class="line">possible_keys: PRIMARY,idx_tb_user_name</span><br><span class="line">          key: idx_tb_user_name,PRIMARY</span><br><span class="line">      key_len: <span class="number">13</span>,<span class="number">4</span></span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: <span class="number">4</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: Using <span class="title function_">sort_union</span><span class="params">(idx_tb_user_name,PRIMARY)</span>; Using where   # MySQL 内部索引合并</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>通过 explain 可以看到， MySQL 在实际的查询过程内还进行类内部优化， 将 通过 id 查询的数据与 name 查询的数据做了合并操作，在实际的查询过程中建立一个相关列的多列索引效果会更好。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select * from tb_user <span class="type">where</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&#x27;jSMfqpAKV&#x27;</span> <span class="type">and</span>  <span class="variable">birth</span> <span class="operator">=</span><span class="string">&#x27;1970-01-01&#x27;</span>\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: index_merge</span><br><span class="line">possible_keys: idx_tb_user_name,idx_tb_user_birth</span><br><span class="line">          key: idx_tb_user_name,idx_tb_user_birth</span><br><span class="line">      key_len: <span class="number">13</span>,<span class="number">4</span></span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: <span class="number">1</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: Using <span class="title function_">intersect</span><span class="params">(idx_tb_user_name,idx_tb_user_birth)</span>; Using where; Using index   # 取了两部分数据的交集</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>此时 name 与 birth 都只有单独的索引， Extra中的信息表明使用了交集来进行数据合并。 我们为 name，birth 建立一个多列索引后再进行查询</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">mysql&gt; create index idx_name_birth on <span class="title function_">tb_user</span><span class="params">(name, birth)</span>;</span><br><span class="line">Query OK, <span class="number">0</span> rows <span class="title function_">affected</span> <span class="params">(<span class="number">1.14</span> sec)</span></span><br><span class="line">Records: <span class="number">0</span>  Duplicates: <span class="number">0</span>  Warnings: <span class="number">0</span></span><br><span class="line"></span><br><span class="line">mysql&gt; explain select * from tb_user <span class="type">where</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&#x27;jSMfqpAKV&#x27;</span> <span class="type">and</span>  <span class="variable">birth</span> <span class="operator">=</span><span class="string">&#x27;1970-01-01&#x27;</span>\G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: ref</span><br><span class="line">possible_keys: idx_tb_user_name,idx_tb_user_birth,idx_name_birth</span><br><span class="line">          key: idx_name_birth</span><br><span class="line">      key_len: <span class="number">17</span></span><br><span class="line">          ref: const,const</span><br><span class="line">         rows: <span class="number">1</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: Using index  # 通过索引查询</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以看到在实际的查询中是走的索引进行查询， MySQL 无需再对查询的结果优化处理。</p>
+<p>参考： <a target="_blank" rel="noopener" href="https://blog.hufeifei.cn/2018/04/24/DB/MySQL%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%5B%E5%AE%9E%E8%B7%B5%E7%AF%87%5D-%E4%BD%BF%E7%94%A8B%E6%A0%91%E7%B4%A2%E5%BC%95/">MySQL性能优化[实践篇]-使用B树索引</a></p>
+
+      
+    </div>
+    
+  </div>
+  
+    <span id="busuanzi_container_page_pv">
+      总阅读量 <span id="busuanzi_value_page_pv"></span> 次
+    </span>
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">准备测试数据</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E8%A1%A8"><span class="toc-number">1.1.</span> <span class="toc-text">新建表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%AD%98%E5%82%A8%E8%BF%87%E7%A8%8B%E9%80%A0%E6%95%B0%E6%8D%AE"><span class="toc-number">1.2.</span> <span class="toc-text">利用存储过程造数据</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">使用主键查询</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">不使用索引查询</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">使用索引查询</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">使用索引时的注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A6%81%E6%AD%A2%E5%9C%A8%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5%E4%B8%AD%E4%BD%BF%E7%94%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">5.1.</span> <span class="toc-text">禁止在查询语句中使用表达式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%BF%E5%85%8D%E5%B0%86%E7%B4%A2%E5%BC%95%E5%88%97%E4%BD%9C%E4%B8%BA%E5%8F%82%E6%95%B0"><span class="toc-number">5.2.</span> <span class="toc-text">避免将索引列作为参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E7%B3%8A%E6%9F%A5%E8%AF%A2%E6%97%B6%E4%BD%BF%E7%94%A8%E5%89%8D%E7%BC%80%E7%B4%A2%E5%BC%95"><span class="toc-number">5.3.</span> <span class="toc-text">模糊查询时使用前缀索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E8%A6%81%E5%AF%B9%E6%AF%8F%E4%B8%80%E5%88%97%E9%83%BD%E5%88%9B%E5%BB%BA%E5%8D%95%E7%8B%AC%E7%9A%84%E7%B4%A2%E5%BC%95"><span class="toc-number">5.4.</span> <span class="toc-text">不要对每一列都创建单独的索引</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-6 i,
+        .toc-level-6 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"true"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/03/04/mysql/note5-cluster-index/" title="上一篇: 聚簇索引、二级索引与覆盖索引">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/02/26/leetcode/linkedlist/partition-list/" title="下一篇: LeetCode 86. Partition List">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/">一个Java对象到底有多大</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/21/thread/generate-thread-pool/">创建线程池的五种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/mysql/MySQL-Limit/">MySQL Limit 用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/">一文吃透 MVCC</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/26/design-pattern/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">迭代器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/13/leetcode/linkedlist/sort-list/">LeetCode 148. Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/leetcode/linkedlist/insertion-sort-list/">LeetCode 147. Insertion Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/">组合模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/leetcode/linkedlist/reorder-list/">LeetCode 143. Reorder List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/07/design-pattern/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">模板方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/">中介者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/29/design-pattern/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/">状态模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/design-pattern/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle-ii/">LeetCode 142. Linked List Cycle II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle/">LeetCode 141. Linked List Cycle</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/design-pattern/%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/">享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/12/leetcode/linkedlist/copy-list-with-random-pointer/">LeetCode 138. Copy List with Random Pointer</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/11/mysql/note11-load-banlancing/">MySQL 负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/06/mysql/note10-scaling-mysql/">MySQL 扩展</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/29/leetcode/linkedlist/convert-sorted-list-to-binary-search-tree/">LeetCode 109. Convert Sorted List to Binary Search Tree</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/mysql/note9-replica-problems/">MySQL 复制存在的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/22/leetcode/linkedlist/reverse-linked-list-ii/">LeetCode 92. Reverse Linked List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/21/mysql/note8-replication-basic/">MySQL 复制概述</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/15/design-pattern/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/12/mysql/note7-query-optimize2/">MySQL 优化器与特定类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/08/mysql/note6-query-optimize/">MySQL 查询过程及优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/04/mysql/note5-cluster-index/">聚簇索引、二级索引与覆盖索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/29/mysql/note4-btree-practice/">B-Tree 索引实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/26/leetcode/linkedlist/partition-list/">LeetCode 86. Partition List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list-ii/">LeetCode 82. Remove Duplicates from Sorted List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list/">LeetCode 83.Remove Duplicates from Sorted List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/rotate-list/">LeetCode 61. Rotate List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/reverse-nodes-in-k-group/">LeetCode 25. Reverse Nodes In k Group</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/mysql/note-3-btree-and-hash/">B-Tree 索引和 Hash 索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/18/blog/git-pages-mac/">Hexo + Github 搭建博客（Mac篇）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/mysql/note-2-shcema-design/">Schema设计与数据类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/mysql/note-1-mysql-history/">MySQL架构与历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/leetcode/linkedlist/SwapPairs/">LeetCode 24. Swap Nodes in Pairs</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/21/design-pattern/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/18/leetcode/linkedlist/MergeKLists/">LeetCode 23. Merge k Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/17/leetcode/linkedlist/MergeTwoLists/">LeetCode 21. Merge Two Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/09/leetcode/linkedlist/RemoveNthFromEnd/">LeetCode 19. Remove Nth From End of List</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/">装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/02/leetcode/linkedlist/AddTwoNumbers/">LeetCode 2. Add Two Numbers</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/design-pattern/Adapter%E6%A8%A1%E5%BC%8F/">Adapter模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/design-pattern/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/">外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/">建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/design-pattern/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/">抽象工厂</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/">工厂方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82/">简单工厂</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+    
+      <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<script>
+	var gitalk = new Gitalk({
+	  clientID: '74dc42ae544dae724ca4',
+	  clientSecret: '0b40598c63d2f0fd1f47176355d2f03024ec0546',
+	  repo: 'harryhook.github.io',
+	  owner: 'harryhook',
+	  admin: ['harryhook'],
+	  id: md5(window.location.pathname),
+	  distractionFreeMode: true
+	})
+
+	gitalk.render('gitalk-container')
+</script>
+    
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2022 HarryHook
+            </div>
+            
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">
+                总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+            <span id="busuanzi_container_site_uv">
+                访客数<span id="busuanzi_value_site_uv"></span>人次
+            </span>  
+
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+              
+        </div>
+
+       
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111464093-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+
+  </div>
+</body>
+</html>

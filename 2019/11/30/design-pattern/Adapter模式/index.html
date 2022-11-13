@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="HarryHook" />
+
+
+
+<meta name="description" content="联想到日常生活中的适配器， 来看下程序设计中的适配器模式是什么样的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Adapter模式">
+<meta property="og:url" content="https://coderunning.fun/2019/11/30/design-pattern/Adapter%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="harryhook&#39;s blog">
+<meta property="og:description" content="联想到日常生活中的适配器， 来看下程序设计中的适配器模式是什么样的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://coderunning.fun/%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F-UML.jpg">
+<meta property="og:image" content="https://coderunning.fun/%E7%B1%BB%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F.jpg">
+<meta property="og:image" content="https://coderunning.fun/%E5%AF%B9%E8%B1%A1%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F.jpg">
+<meta property="article:published_time" content="2019-11-30T07:34:56.000Z">
+<meta property="article:modified_time" content="2022-11-13T03:58:14.855Z">
+<meta property="article:author" content="HarryHook">
+<meta property="article:tag" content="结构型模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://coderunning.fun/%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F-UML.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="harryhook&#39;s blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/kagami.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/yellow/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>Adapter模式 | harryhook&#39;s blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?3079c0591c6effd277707fa1e2fb142e";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/me.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">分类&amp;标签</a></li>
+                        
+                            <li><a href="/about/">关于</a></li>
+                        
+                            <li><a href="/running/">跑步</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="noopener" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java%E5%AF%B9%E8%B1%A1/" rel="tag">Java对象</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPool/" rel="tag">ThreadPool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linkedlist/" rel="tag">linkedlist</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">行为型模式</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+
+                
+                
+                <section class="switch-part switch-part3">
+                
+                    <div id="js-aboutme">会写点代码的跑步爱好者</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/me.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">分类&amp;标签</a></li>
+                
+                    <li><a href="/about/">关于</a></li>
+                
+                    <li><a href="/running/">跑步</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-design-pattern/Adapter模式" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2019/11/30/design-pattern/Adapter%E6%A8%A1%E5%BC%8F/" class="article-date">
+      <time datetime="2019-11-30T07:34:56.000Z" itemprop="datePublished">2019-11-30</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Adapter模式
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>联想到日常生活中的适配器， 来看下程序设计中的适配器模式是什么样的</p>
+<span id="more"></span>
+<h1>什么是适配器模式</h1>
+<blockquote>
+<p>将一个目前自己不能使用的类，通过适配器进行包装，得到我们想要的功能</p>
+</blockquote>
+<h1>适配器组成</h1>
+<p>源角色（Adaptee）： 需要适配的类<br>
+适配器（Adapter）：把源角色转换成目标接口<br>
+目标（Target）： 客户所期待的接口<br>
+Client：…</p>
+<h1>适配器uml</h1>
+<p><img src="/%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F-UML.jpg" alt="UML"></p>
+<p>通过uml图可以看到，适配器可以将Target一个类的接口变换成客户端所期待的另一种接口，从而使原本接口不匹配而无法在一起工作的两个类能够在一起工作。也有人把这种模式叫做包装（Wrapper）模式。</p>
+<h1>具体例子</h1>
+<h2 id="类适配器模式">类适配器模式</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ITiger</span> <span class="variable">flyTiger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FlyTiger</span>(<span class="string">&quot;飞天虎&quot;</span>);</span><br><span class="line">        flyTiger.eat();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">ITiger</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Falcon</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Falcon</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fly</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.printf(<span class="string">&quot;%s 会飞！\n&quot;</span>, <span class="built_in">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FlyTiger</span> <span class="keyword">extends</span> <span class="title class_">Falcon</span> <span class="keyword">implements</span> <span class="title class_">ITiger</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FlyTiger</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">super</span>(name);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.fly();</span><br><span class="line">        System.out.printf(<span class="string">&quot;%s 要吃肉！\n&quot;</span>, <span class="built_in">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>输出</strong>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">飞天虎 会飞！</span><br><span class="line">飞天虎 要吃肉！</span><br></pre></td></tr></table></figure>
+<p>看一下类适配器的结构<br>
+<img src="/%E7%B1%BB%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F.jpg" alt="类适配器模式"></p>
+<h2 id="对象适配器模式">对象适配器模式</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ITiger</span> <span class="variable">flyTiger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FlyTiger</span>();</span><br><span class="line">        flyTiger.eat();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">ITiger</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">show</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Falcon</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Falcon</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fly</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.printf(<span class="string">&quot;我会飞！\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FlyTiger</span> <span class="keyword">implements</span> <span class="title class_">ITiger</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Falcon</span> <span class="variable">falcon</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Falcon</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FlyTiger</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">show</span><span class="params">()</span> &#123;</span><br><span class="line">        falcon.fly();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看一下对象适配器的结构</p>
+<p><img src="/%E5%AF%B9%E8%B1%A1%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F.jpg" alt="对象适配器模式"></p>
+<h1>类装配器与对象适配器的区别</h1>
+<h2 id="类适配器模式-2">类适配器模式</h2>
+<p><strong>优点：</strong></p>
+<ul>
+<li>使用方便， 代码简单</li>
+<li>只需引用一个字段，不需要额外的字段引用Adaptee实例</li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>高耦合，灵活性差</li>
+<li>使用继承</li>
+</ul>
+<h2 id="对象适配器模式-2">对象适配器模式</h2>
+<p><strong>优点：</strong></p>
+<ul>
+<li>灵活性高、低耦合</li>
+<li>采用组合， 而非继承</li>
+</ul>
+<p><strong>缺点:</strong>：</p>
+<ul>
+<li>复杂</li>
+<li>需要引入对象</li>
+</ul>
+<h2 id="总结">总结</h2>
+<blockquote>
+<p>需要重新定义Adaptee时， 采用类适配器;</p>
+</blockquote>
+<blockquote>
+<p>需要同时使用源类和其子类时采用对象适配器;</p>
+</blockquote>
+<blockquote>
+<p>建议多使用组合（对象适配器），少使用继承（类适配器）</p>
+</blockquote>
+<h1>使用场景</h1>
+<ul>
+<li>系统复用现有的类， 当该类的接口不满足当前需求时， 利用适配器可以使得原本不兼容的接口一起工作</li>
+<li>多个组件类似， 但接口不同意需要经常来回切换， 使用适配器模式可以让客户端统一调通， 节约成本</li>
+</ul>
+<h1>JDK中的应用</h1>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">java.util.Arrays#asList()</span><br><span class="line"></span><br><span class="line"><span class="comment">//InputStreamReader 继承了Readr类，但要创建它的对象必须在构造函数中传入一个InputStream）(InputStream→Reader 字节到字符)</span></span><br><span class="line">java.io.InputStreamReader</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同理 OutputStreamWriter</span></span><br><span class="line">java.io.OutputStreamWriter(OutputStream)</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    <span id="busuanzi_container_page_pv">
+      总阅读量 <span id="busuanzi_value_page_pv"></span> 次
+    </span>
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">什么是适配器模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">适配器组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">适配器uml</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">具体例子</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.1.</span> <span class="toc-text">类适配器模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F"><span class="toc-number">4.2.</span> <span class="toc-text">对象适配器模式</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">类装配器与对象适配器的区别</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F-2"><span class="toc-number">5.1.</span> <span class="toc-text">类适配器模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F-2"><span class="toc-number">5.2.</span> <span class="toc-text">对象适配器模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.3.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">使用场景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">JDK中的应用</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-6 i,
+        .toc-level-6 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"true"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2019/12/02/leetcode/linkedlist/AddTwoNumbers/" title="上一篇: LeetCode 2. Add Two Numbers">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2019/11/22/design-pattern/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/" title="下一篇: 外观模式">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/">一个Java对象到底有多大</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/21/thread/generate-thread-pool/">创建线程池的五种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/mysql/MySQL-Limit/">MySQL Limit 用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/">一文吃透 MVCC</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/26/design-pattern/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">迭代器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/13/leetcode/linkedlist/sort-list/">LeetCode 148. Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/leetcode/linkedlist/insertion-sort-list/">LeetCode 147. Insertion Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/">组合模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/leetcode/linkedlist/reorder-list/">LeetCode 143. Reorder List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/07/design-pattern/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">模板方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/">中介者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/29/design-pattern/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/">状态模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/design-pattern/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle-ii/">LeetCode 142. Linked List Cycle II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle/">LeetCode 141. Linked List Cycle</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/design-pattern/%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/">享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/12/leetcode/linkedlist/copy-list-with-random-pointer/">LeetCode 138. Copy List with Random Pointer</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/11/mysql/note11-load-banlancing/">MySQL 负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/06/mysql/note10-scaling-mysql/">MySQL 扩展</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/29/leetcode/linkedlist/convert-sorted-list-to-binary-search-tree/">LeetCode 109. Convert Sorted List to Binary Search Tree</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/mysql/note9-replica-problems/">MySQL 复制存在的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/22/leetcode/linkedlist/reverse-linked-list-ii/">LeetCode 92. Reverse Linked List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/21/mysql/note8-replication-basic/">MySQL 复制概述</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/15/design-pattern/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/12/mysql/note7-query-optimize2/">MySQL 优化器与特定类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/08/mysql/note6-query-optimize/">MySQL 查询过程及优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/04/mysql/note5-cluster-index/">聚簇索引、二级索引与覆盖索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/29/mysql/note4-btree-practice/">B-Tree 索引实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/26/leetcode/linkedlist/partition-list/">LeetCode 86. Partition List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list-ii/">LeetCode 82. Remove Duplicates from Sorted List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list/">LeetCode 83.Remove Duplicates from Sorted List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/rotate-list/">LeetCode 61. Rotate List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/reverse-nodes-in-k-group/">LeetCode 25. Reverse Nodes In k Group</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/mysql/note-3-btree-and-hash/">B-Tree 索引和 Hash 索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/18/blog/git-pages-mac/">Hexo + Github 搭建博客（Mac篇）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/mysql/note-2-shcema-design/">Schema设计与数据类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/mysql/note-1-mysql-history/">MySQL架构与历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/leetcode/linkedlist/SwapPairs/">LeetCode 24. Swap Nodes in Pairs</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/21/design-pattern/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/18/leetcode/linkedlist/MergeKLists/">LeetCode 23. Merge k Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/17/leetcode/linkedlist/MergeTwoLists/">LeetCode 21. Merge Two Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/09/leetcode/linkedlist/RemoveNthFromEnd/">LeetCode 19. Remove Nth From End of List</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/">装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/02/leetcode/linkedlist/AddTwoNumbers/">LeetCode 2. Add Two Numbers</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/design-pattern/Adapter%E6%A8%A1%E5%BC%8F/">Adapter模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/design-pattern/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/">外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/">建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/design-pattern/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/">抽象工厂</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/">工厂方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82/">简单工厂</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+    
+      <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<script>
+	var gitalk = new Gitalk({
+	  clientID: '74dc42ae544dae724ca4',
+	  clientSecret: '0b40598c63d2f0fd1f47176355d2f03024ec0546',
+	  repo: 'harryhook.github.io',
+	  owner: 'harryhook',
+	  admin: ['harryhook'],
+	  id: md5(window.location.pathname),
+	  distractionFreeMode: true
+	})
+
+	gitalk.render('gitalk-container')
+</script>
+    
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2022 HarryHook
+            </div>
+            
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">
+                总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+            <span id="busuanzi_container_site_uv">
+                访客数<span id="busuanzi_value_site_uv"></span>人次
+            </span>  
+
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+              
+        </div>
+
+       
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111464093-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+
+  </div>
+</body>
+</html>

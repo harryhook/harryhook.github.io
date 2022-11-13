@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="HarryHook" />
+
+
+
+<meta name="description" content="享元模式是一种支持细粒度对象复用的结构型设计模式，又称为 轻量级模式。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="享元模式">
+<meta property="og:url" content="https://coderunning.fun/2020/04/17/design-pattern/%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="harryhook&#39;s blog">
+<meta property="og:description" content="享元模式是一种支持细粒度对象复用的结构型设计模式，又称为 轻量级模式。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://coderunning.fun/%E5%8D%95%E7%BA%AF%E4%BA%AB%E5%85%83.jpg">
+<meta property="og:image" content="https://coderunning.fun/%E5%A4%8D%E5%90%88%E4%BA%AB%E5%85%83.jpg">
+<meta property="article:published_time" content="2020-04-17T12:53:49.000Z">
+<meta property="article:modified_time" content="2022-11-13T03:58:14.858Z">
+<meta property="article:author" content="HarryHook">
+<meta property="article:tag" content="结构型模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://coderunning.fun/%E5%8D%95%E7%BA%AF%E4%BA%AB%E5%85%83.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="harryhook&#39;s blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/kagami.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/yellow/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>享元模式 | harryhook&#39;s blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?3079c0591c6effd277707fa1e2fb142e";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/me.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">分类&amp;标签</a></li>
+                        
+                            <li><a href="/about/">关于</a></li>
+                        
+                            <li><a href="/running/">跑步</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="noopener" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java%E5%AF%B9%E8%B1%A1/" rel="tag">Java对象</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPool/" rel="tag">ThreadPool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linkedlist/" rel="tag">linkedlist</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">行为型模式</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+
+                
+                
+                <section class="switch-part switch-part3">
+                
+                    <div id="js-aboutme">会写点代码的跑步爱好者</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/me.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">分类&amp;标签</a></li>
+                
+                    <li><a href="/about/">关于</a></li>
+                
+                    <li><a href="/running/">跑步</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-design-pattern/享元模式" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/04/17/design-pattern/%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/" class="article-date">
+      <time datetime="2020-04-17T12:53:49.000Z" itemprop="datePublished">2020-04-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      享元模式
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>享元模式是一种支持细粒度对象复用的结构型设计模式，又称为 轻量级模式。</p>
+<span id="more"></span>
+<h1>什么是享元模式</h1>
+<p>享元模式 (FlyWeight Pattern) 是为了解决系统运行中产生的对象太多，导致运行代价过高、系统性能下降的问题。比如文本字符串中有很多相同的字符，若每一个字符都用单独的对象去表示将会占用很多的内存空间，而<strong>享元模式</strong>通过共享实现了对象的重用，使出现的每一个字符在内存中共享一个对象。</p>
+<h1>什么情况下需要使用享元模式</h1>
+<ul>
+<li>当我们需要大量细粒度对象且只有几个参数， 并且大多数特性是相同的。</li>
+<li>当需要创建更少的对象并将它们共享来空盒子大量对象的内存消耗。</li>
+</ul>
+<h1>内部状态和外部状态</h1>
+<p>享元对象具有两种状态：<strong>内部状态</strong> (Intrinsic State) 和<strong>外部状态</strong> (Extrinsic State).</p>
+<ul>
+<li>
+<p>享元对象中共享的状态为内部状态。内部状态是存储在享元对象内部并且不会随着环境改变而改变的状态，例如字符 a 在任何环境下始终是 a。</p>
+</li>
+<li>
+<p>由外部环境设置不能共享的内容称为外部状态。外部状态会随环境改变而改变，外部状态之间是相互独立的，例如字符的颜色或者字号大小，外部状态独立变化相互之间没有影响。 外部状态可以通过对象创建的时候传递给享元对象。</p>
+</li>
+</ul>
+<h1>享元模式组成</h1>
+<p>享元模式可以分为<strong>单纯享元</strong>与<strong>复合享元</strong>两种模式。</p>
+<h1>单纯享元模式</h1>
+<p><img src="/%E5%8D%95%E7%BA%AF%E4%BA%AB%E5%85%83.jpg" alt="单纯享元 UML"></p>
+<p><strong>FlyWeight</strong>(抽象享元类)：抽象类或者接口，在接口中定义了具体享元类的公共方法，公共方法向外部提供享元对象的内部数据（内部状态），也可以通过公共方法设置外部数据（外部方法）。</p>
+<p><strong>ConcreteFlyWeight</strong>(具体享元类)： 实现了抽象享元类， 其实例成为享元对象；在具体享元类为内部状态提供存储空间。</p>
+<p><strong>FlyWeightFactory</strong>(享元工厂类)： 享元工厂创建并管理享元对象， 针对抽象享元类将各种具体享元对象存储在一个享元池中（通常是 Map ）。使用工厂模式创建享元实例， 如果不存在将其存储在享元池中， 如果存在直接从享元池中提供实例。</p>
+<h1>单纯享元模式代码实现</h1>
+<p>以画圆举例，需要在不同的坐标上不同颜色</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 抽象享元类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> radius)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 具体享元类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Circle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 内部状态可共享</span></span><br><span class="line">	<span class="keyword">private</span> String color;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 外部状态</span></span><br><span class="line">	<span class="keyword">private</span> <span class="type">int</span> x;</span><br><span class="line">	<span class="comment">// 外部状态</span></span><br><span class="line">	<span class="keyword">private</span> <span class="type">int</span> y;</span><br><span class="line">	<span class="comment">// 外部状态</span></span><br><span class="line">	<span class="keyword">private</span> <span class="type">int</span> radius;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="title function_">Circle</span><span class="params">(String color)</span> &#123;</span><br><span class="line">		<span class="built_in">this</span>.color = color;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> radius)</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="built_in">this</span>.x = x;</span><br><span class="line">		<span class="built_in">this</span>.y = y;</span><br><span class="line">		<span class="built_in">this</span>.radius = radius;</span><br><span class="line"></span><br><span class="line">		System.out.println(<span class="string">&quot;draw a circle: &quot;</span> + <span class="string">&quot;color: &quot;</span> + color + <span class="string">&quot;, x: &quot;</span> + x + <span class="string">&quot;, y &quot;</span> + y + <span class="string">&quot;, radius &quot;</span> + radius);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 享元工厂类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line">    <span class="comment">// 享元池</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> HashMap&lt;String, Shape&gt; circleMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span>  Shape <span class="title function_">getCircle</span><span class="params">(String color)</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="type">Shape</span> <span class="variable">circle</span> <span class="operator">=</span> circleMap.get(color);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (circle == <span class="literal">null</span>) &#123;</span><br><span class="line">			circle = <span class="keyword">new</span> <span class="title class_">Circle</span>(color);</span><br><span class="line">			circleMap.put(color, circle);</span><br><span class="line">		&#125;</span><br><span class="line">        </span><br><span class="line">		<span class="keyword">return</span> circle;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">poolSize</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> circleMap.size();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 客户端调用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">	</span><br><span class="line">		<span class="type">ShapeFactory</span> <span class="variable">shapeFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ShapeFactory</span>();</span><br><span class="line">			</span><br><span class="line">		<span class="type">Shape</span> <span class="variable">blackCircle1</span> <span class="operator">=</span>  shapeFactory.getCircle(<span class="string">&quot;Black&quot;</span>);</span><br><span class="line">		blackCircle1.draw(getRandomX(), getRandomY(), getRandomRadius());</span><br><span class="line">			</span><br><span class="line">		<span class="type">Shape</span> <span class="variable">blackCircle2</span> <span class="operator">=</span>  shapeFactory.getCircle(<span class="string">&quot;Black&quot;</span>);</span><br><span class="line">		blackCircle2.draw(getRandomX(), getRandomY(), getRandomRadius());</span><br><span class="line">			</span><br><span class="line">		System.out.println( blackCircle1 == blackCircle2);</span><br><span class="line">		System.out.println(<span class="string">&quot;pool size: &quot;</span> + shapeFactory.poolSize());</span><br><span class="line">		    </span><br><span class="line">		System.out.println(<span class="string">&quot;pool size: &quot;</span> + shapeFactory.poolSize());</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">getRandomRadius</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (<span class="type">int</span>) (Math.random() * <span class="number">100</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">getRandomY</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (<span class="type">int</span>) (Math.random() * <span class="number">100</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">getRandomX</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (<span class="type">int</span>) (Math.random() * <span class="number">100</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<pre><code>draw a circle: color: Black, x: 23, y 72, radius 4
+draw a circle: color: Black, x: 77, y 79, radius 44
+
+true
+
+pool size: 1
+</code></pre>
+<h1>复合享元模式</h1>
+<p><img src="/%E5%A4%8D%E5%90%88%E4%BA%AB%E5%85%83.jpg" alt="复合享元 UML"></p>
+<p>复合享元模式组成:</p>
+<ul>
+<li>抽象享元角色(Flyweight)</li>
+<li>具体享元角色(ConcreteFlyweight)</li>
+<li><em><strong>复合享元角色</strong></em>(ConcreteCompositeFlyweight)</li>
+<li>享元工厂角色(FlyweightFactory)</li>
+</ul>
+<p>复合享元模式相比于单纯享元模式多了 <strong>复合享元对象</strong> (ConcreteComositeFlyWeight)：复合享元角色所代表的对象是不可以共享的，一个复合享元对象可以有多个具体享元对象组成。 因此提供 add()方法来聚集管理单纯享元角色， 且多了一个 map 对象。</p>
+<h1>复合享元模式代码实现</h1>
+<p>复合享元类——CompositeConcreteFlyweight</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CompositeCircle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">	<span class="comment">// 单纯享元对象集合</span></span><br><span class="line">	<span class="keyword">private</span> Map&lt;String, Shape&gt; flyWeights = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">   </span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * flyWeights 是单纯享元对象集合，具有相同的外部状态extrinsicState</span></span><br><span class="line"><span class="comment">     * 该示例中extrinsicState则是相同的 x, y, radius</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> radius)</span> &#123;</span><br><span class="line">		<span class="keyword">for</span> (Map.Entry&lt;String, Shape&gt; entry : flyWeights.entrySet()) &#123;</span><br><span class="line">			entry.getValue().draw(x, y, radius);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(String color, Shape shape)</span> &#123;</span><br><span class="line">		flyWeights.put(color, shape);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> HashMap&lt;String, Shape&gt; flyWeights = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> Shape <span class="title function_">getCircle</span><span class="params">(String color)</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="type">Shape</span> <span class="variable">circle</span> <span class="operator">=</span> flyWeights.get(color);</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> (circle == <span class="literal">null</span>) &#123;</span><br><span class="line">			circle = <span class="keyword">new</span> <span class="title class_">Circle</span>(color);</span><br><span class="line">			flyWeights.put(color, circle);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> circle;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> Shape <span class="title function_">getCircle</span><span class="params">(List&lt;String&gt; colors)</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="type">CompositeCircle</span> <span class="variable">compositeCircle</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CompositeCircle</span>();</span><br><span class="line">		<span class="keyword">for</span> (String color : colors) &#123;</span><br><span class="line">		      	<span class="comment">// 调用单纯享元工厂模式方法， 使用 add() 方法加入的单纯享元对象是可以共享的</span></span><br><span class="line">			compositeCircle.add(color, <span class="built_in">this</span>.getCircle(color));</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> compositeCircle;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">poolSize</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> flyWeights.size();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">客户端调用：</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Client</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String colors[] = &#123;<span class="string">&quot;Red&quot;</span>, <span class="string">&quot;Green&quot;</span>, <span class="string">&quot;Blue&quot;</span>, <span class="string">&quot;White&quot;</span>, <span class="string">&quot;Black&quot;</span>&#125;;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">		List&lt;String&gt; compositeState = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">	</span><br><span class="line">		compositeState.add(getRandomColor());</span><br><span class="line">		compositeState.add(getRandomColor());</span><br><span class="line">		compositeState.add(getRandomColor());</span><br><span class="line">		compositeState.add(getRandomColor());</span><br><span class="line">	</span><br><span class="line">		<span class="type">ShapeFactory</span> <span class="variable">shapeFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ShapeFactory</span>();</span><br><span class="line">	</span><br><span class="line">		<span class="type">Shape</span> <span class="variable">circle1</span> <span class="operator">=</span> shapeFactory.getCircle(compositeState);</span><br><span class="line">		<span class="type">Shape</span> <span class="variable">circle2</span> <span class="operator">=</span> shapeFactory.getCircle(compositeState);</span><br><span class="line">	</span><br><span class="line">		<span class="comment">// 复合享元对象不可共享</span></span><br><span class="line">		System.out.println(circle1 == circle2);</span><br><span class="line">	</span><br><span class="line">		<span class="comment">// 多个单处享元对象具有相同的外部状态</span></span><br><span class="line">		circle1.draw(getRandomX(), getRandomY(), getRandomRadius());</span><br><span class="line">		circle2.draw(getRandomX(), getRandomY(), getRandomRadius());</span><br><span class="line">	</span><br><span class="line">		System.out.println(<span class="string">&quot;pool size: &quot;</span> + shapeFactory.poolSize());</span><br><span class="line">	</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> String <span class="title function_">getRandomColor</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> colors[(<span class="type">int</span>) (colors.length * Math.random())];</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">getRandomRadius</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (<span class="type">int</span>) (Math.random() * <span class="number">100</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">getRandomY</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (<span class="type">int</span>) (Math.random() * <span class="number">100</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">getRandomX</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (<span class="type">int</span>) (Math.random() * <span class="number">100</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<pre><code>false
+
+draw a circle: color: White, x: 89, y 50, radius 16
+draw a circle: color: Blue, x: 89, y 50, radius 16
+draw a circle: color: Black, x: 89, y 50, radius 16
+
+draw a circle: color: White, x: 41, y 60, radius 35
+draw a circle: color: Blue, x: 41, y 60, radius 35
+draw a circle: color: Black, x: 41, y 60, radius 35
+
+pool size: 3
+</code></pre>
+<h1>享元模式的优缺点</h1>
+<p>优点：</p>
+<ul>
+<li>实现了对象共享</li>
+<li>使用享元模式减少了对象的创建，减少了内存的使用</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>需要分离出内部状态和外部状态，系统更复杂</li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    <span id="busuanzi_container_page_pv">
+      总阅读量 <span id="busuanzi_value_page_pv"></span> 次
+    </span>
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">什么是享元模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">什么情况下需要使用享元模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">内部状态和外部状态</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">享元模式组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">单纯享元模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">单纯享元模式代码实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">复合享元模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">复合享元模式代码实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">9.</span> <span class="toc-text">享元模式的优缺点</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-6 i,
+        .toc-level-6 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"true"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/04/19/leetcode/linkedlist/linked-list-cycle/" title="上一篇: LeetCode 141. Linked List Cycle">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/04/12/leetcode/linkedlist/copy-list-with-random-pointer/" title="下一篇: LeetCode 138. Copy List with Random Pointer">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/">一个Java对象到底有多大</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/21/thread/generate-thread-pool/">创建线程池的五种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/mysql/MySQL-Limit/">MySQL Limit 用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/">一文吃透 MVCC</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/26/design-pattern/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">迭代器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/13/leetcode/linkedlist/sort-list/">LeetCode 148. Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/leetcode/linkedlist/insertion-sort-list/">LeetCode 147. Insertion Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/">组合模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/leetcode/linkedlist/reorder-list/">LeetCode 143. Reorder List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/07/design-pattern/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">模板方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/">中介者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/29/design-pattern/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/">状态模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/design-pattern/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle-ii/">LeetCode 142. Linked List Cycle II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle/">LeetCode 141. Linked List Cycle</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/design-pattern/%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/">享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/12/leetcode/linkedlist/copy-list-with-random-pointer/">LeetCode 138. Copy List with Random Pointer</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/11/mysql/note11-load-banlancing/">MySQL 负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/06/mysql/note10-scaling-mysql/">MySQL 扩展</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/29/leetcode/linkedlist/convert-sorted-list-to-binary-search-tree/">LeetCode 109. Convert Sorted List to Binary Search Tree</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/mysql/note9-replica-problems/">MySQL 复制存在的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/22/leetcode/linkedlist/reverse-linked-list-ii/">LeetCode 92. Reverse Linked List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/21/mysql/note8-replication-basic/">MySQL 复制概述</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/15/design-pattern/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/12/mysql/note7-query-optimize2/">MySQL 优化器与特定类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/08/mysql/note6-query-optimize/">MySQL 查询过程及优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/04/mysql/note5-cluster-index/">聚簇索引、二级索引与覆盖索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/29/mysql/note4-btree-practice/">B-Tree 索引实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/26/leetcode/linkedlist/partition-list/">LeetCode 86. Partition List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list-ii/">LeetCode 82. Remove Duplicates from Sorted List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list/">LeetCode 83.Remove Duplicates from Sorted List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/rotate-list/">LeetCode 61. Rotate List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/reverse-nodes-in-k-group/">LeetCode 25. Reverse Nodes In k Group</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/mysql/note-3-btree-and-hash/">B-Tree 索引和 Hash 索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/18/blog/git-pages-mac/">Hexo + Github 搭建博客（Mac篇）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/mysql/note-2-shcema-design/">Schema设计与数据类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/mysql/note-1-mysql-history/">MySQL架构与历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/leetcode/linkedlist/SwapPairs/">LeetCode 24. Swap Nodes in Pairs</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/21/design-pattern/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/18/leetcode/linkedlist/MergeKLists/">LeetCode 23. Merge k Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/17/leetcode/linkedlist/MergeTwoLists/">LeetCode 21. Merge Two Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/09/leetcode/linkedlist/RemoveNthFromEnd/">LeetCode 19. Remove Nth From End of List</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/">装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/02/leetcode/linkedlist/AddTwoNumbers/">LeetCode 2. Add Two Numbers</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/design-pattern/Adapter%E6%A8%A1%E5%BC%8F/">Adapter模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/design-pattern/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/">外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/">建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/design-pattern/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/">抽象工厂</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/">工厂方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82/">简单工厂</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+    
+      <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<script>
+	var gitalk = new Gitalk({
+	  clientID: '74dc42ae544dae724ca4',
+	  clientSecret: '0b40598c63d2f0fd1f47176355d2f03024ec0546',
+	  repo: 'harryhook.github.io',
+	  owner: 'harryhook',
+	  admin: ['harryhook'],
+	  id: md5(window.location.pathname),
+	  distractionFreeMode: true
+	})
+
+	gitalk.render('gitalk-container')
+</script>
+    
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2022 HarryHook
+            </div>
+            
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">
+                总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+            <span id="busuanzi_container_site_uv">
+                访客数<span id="busuanzi_value_site_uv"></span>人次
+            </span>  
+
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+              
+        </div>
+
+       
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111464093-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="HarryHook" />
+
+
+
+<meta name="description" content="一个Integer对象有多大？面试的时候听到这个问题是不是有点懵逼?😳">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个Java对象到底有多大">
+<meta property="og:url" content="https://coderunning.fun/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/index.html">
+<meta property="og:site_name" content="harryhook&#39;s blog">
+<meta property="og:description" content="一个Integer对象有多大？面试的时候听到这个问题是不是有点懵逼?😳">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://coderunning.fun/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/%E5%AF%B9%E8%B1%A1%E7%BB%84%E6%88%90.png">
+<meta property="article:published_time" content="2022-06-02T15:03:43.000Z">
+<meta property="article:modified_time" content="2022-11-13T03:58:14.870Z">
+<meta property="article:author" content="HarryHook">
+<meta property="article:tag" content="Java对象">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://coderunning.fun/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/%E5%AF%B9%E8%B1%A1%E7%BB%84%E6%88%90.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="harryhook&#39;s blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/kagami.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/yellow/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>一个Java对象到底有多大 | harryhook&#39;s blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?3079c0591c6effd277707fa1e2fb142e";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/me.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">分类&amp;标签</a></li>
+                        
+                            <li><a href="/about/">关于</a></li>
+                        
+                            <li><a href="/running/">跑步</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="noopener" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java%E5%AF%B9%E8%B1%A1/" rel="tag">Java对象</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPool/" rel="tag">ThreadPool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linkedlist/" rel="tag">linkedlist</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">行为型模式</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+
+                
+                
+                <section class="switch-part switch-part3">
+                
+                    <div id="js-aboutme">会写点代码的跑步爱好者</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/me.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">分类&amp;标签</a></li>
+                
+                    <li><a href="/about/">关于</a></li>
+                
+                    <li><a href="/running/">跑步</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-java/一个java对象有多大" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/" class="article-date">
+      <time datetime="2022-06-02T15:03:43.000Z" itemprop="datePublished">2022-06-02</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      一个Java对象到底有多大
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Java/">Java</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java%E5%AF%B9%E8%B1%A1/" rel="tag">Java对象</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>一个Integer对象有多大？面试的时候听到这个问题是不是有点懵逼?😳</p>
+<span id="more"></span>
+<h1>一个java对象有多大</h1>
+<p>首先要明确一个java对象由哪几部分组成</p>
+<h1>对象在堆内存的构成</h1>
+<p>对象在堆内存中的存储布局可以划分为三个部分：对象头（Header）、实例数据（Instance Data）和对齐填充（Padding）</p>
+<h1>一个java对象是由什么组成的</h1>
+<h2 id="对象头">对象头</h2>
+<p>第一类是用于存储对象自身的运行时数据，如哈希码（HashCode）、GC分代年龄、锁状态标志、线程持有的锁、偏向线程ID、偏向时间戳等</p>
+<p>第二类是类型指针，即对象指向它的类型元数据的指针，Java虚拟机通过这个指针来确定该对象是哪个类的实例，即对象地址</p>
+<p>如果对象是一个数组， 还会有一块4B大小的区域记录4B， 所以数组的最大长度为2^32-1</p>
+<h2 id="实例数据">实例数据</h2>
+<p>实例数据部分是对象真正存储的有效信息，即我们在程序代码里面所定义的各种类型的字段内容，无论是从父类继承下来的，还是在子类中定义的字段都必须记录起来</p>
+<h2 id="对齐填充">对齐填充</h2>
+<p>这并不是必然存在的，也没有特别的含义，它仅仅起着占位符的作用。由于HotSp ot虚拟机的自动内存管理系统要求对象起始地址必须是8字节的整数倍，换句话说就是任何对象的大小都必须是8字节的整数倍。对象头部分已经被精心设计成正好是8字节的倍数</p>
+<p><img src="%E5%AF%B9%E8%B1%A1%E7%BB%84%E6%88%90.png" alt="对象组成"></p>
+<h1>一个Integer 对象有多大</h1>
+<p>Integer：16B = 内存地址+对象标记+ <strong>private final int value = 16B</strong></p>
+<p>Integer[]：24B = 内存地址+对象标记+ 数组长度+ <strong>private final int value = 20B， 同时内存对齐，所以+4B = 24B</strong></p>
+<h1>一个ArrayList 对象有多大</h1>
+<p>ArrayList：24B = 内存地址+对象标记+ 2*4 = 20B + 填充4B = 24B</p>
+<p>其中实例数据有以下两个：</p>
+<p><strong><code>transient Object[] elementData</code></strong></p>
+<p><strong><code>private int size</code></strong></p>
+
+      
+    </div>
+    
+  </div>
+  
+    <span id="busuanzi_container_page_pv">
+      总阅读量 <span id="busuanzi_value_page_pv"></span> 次
+    </span>
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">一个java对象有多大</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">对象在堆内存的构成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">一个java对象是由什么组成的</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E5%A4%B4"><span class="toc-number">3.1.</span> <span class="toc-text">对象头</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E6%95%B0%E6%8D%AE"><span class="toc-number">3.2.</span> <span class="toc-text">实例数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E9%BD%90%E5%A1%AB%E5%85%85"><span class="toc-number">3.3.</span> <span class="toc-text">对齐填充</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">一个Integer 对象有多大</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">一个ArrayList 对象有多大</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-6 i,
+        .toc-level-6 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"true"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2022/03/21/thread/generate-thread-pool/" title="下一篇: 创建线程池的五种方式">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/">一个Java对象到底有多大</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/21/thread/generate-thread-pool/">创建线程池的五种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/mysql/MySQL-Limit/">MySQL Limit 用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/">一文吃透 MVCC</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/26/design-pattern/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">迭代器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/13/leetcode/linkedlist/sort-list/">LeetCode 148. Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/leetcode/linkedlist/insertion-sort-list/">LeetCode 147. Insertion Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/">组合模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/leetcode/linkedlist/reorder-list/">LeetCode 143. Reorder List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/07/design-pattern/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">模板方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/">中介者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/29/design-pattern/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/">状态模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/design-pattern/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle-ii/">LeetCode 142. Linked List Cycle II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle/">LeetCode 141. Linked List Cycle</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/design-pattern/%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/">享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/12/leetcode/linkedlist/copy-list-with-random-pointer/">LeetCode 138. Copy List with Random Pointer</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/11/mysql/note11-load-banlancing/">MySQL 负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/06/mysql/note10-scaling-mysql/">MySQL 扩展</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/29/leetcode/linkedlist/convert-sorted-list-to-binary-search-tree/">LeetCode 109. Convert Sorted List to Binary Search Tree</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/mysql/note9-replica-problems/">MySQL 复制存在的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/22/leetcode/linkedlist/reverse-linked-list-ii/">LeetCode 92. Reverse Linked List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/21/mysql/note8-replication-basic/">MySQL 复制概述</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/15/design-pattern/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/12/mysql/note7-query-optimize2/">MySQL 优化器与特定类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/08/mysql/note6-query-optimize/">MySQL 查询过程及优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/04/mysql/note5-cluster-index/">聚簇索引、二级索引与覆盖索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/29/mysql/note4-btree-practice/">B-Tree 索引实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/26/leetcode/linkedlist/partition-list/">LeetCode 86. Partition List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list-ii/">LeetCode 82. Remove Duplicates from Sorted List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list/">LeetCode 83.Remove Duplicates from Sorted List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/rotate-list/">LeetCode 61. Rotate List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/reverse-nodes-in-k-group/">LeetCode 25. Reverse Nodes In k Group</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/mysql/note-3-btree-and-hash/">B-Tree 索引和 Hash 索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/18/blog/git-pages-mac/">Hexo + Github 搭建博客（Mac篇）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/mysql/note-2-shcema-design/">Schema设计与数据类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/mysql/note-1-mysql-history/">MySQL架构与历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/leetcode/linkedlist/SwapPairs/">LeetCode 24. Swap Nodes in Pairs</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/21/design-pattern/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/18/leetcode/linkedlist/MergeKLists/">LeetCode 23. Merge k Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/17/leetcode/linkedlist/MergeTwoLists/">LeetCode 21. Merge Two Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/09/leetcode/linkedlist/RemoveNthFromEnd/">LeetCode 19. Remove Nth From End of List</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/">装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/02/leetcode/linkedlist/AddTwoNumbers/">LeetCode 2. Add Two Numbers</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/design-pattern/Adapter%E6%A8%A1%E5%BC%8F/">Adapter模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/design-pattern/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/">外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/">建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/design-pattern/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/">抽象工厂</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/">工厂方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82/">简单工厂</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+    
+      <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<script>
+	var gitalk = new Gitalk({
+	  clientID: '74dc42ae544dae724ca4',
+	  clientSecret: '0b40598c63d2f0fd1f47176355d2f03024ec0546',
+	  repo: 'harryhook.github.io',
+	  owner: 'harryhook',
+	  admin: ['harryhook'],
+	  id: md5(window.location.pathname),
+	  distractionFreeMode: true
+	})
+
+	gitalk.render('gitalk-container')
+</script>
+    
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2022 HarryHook
+            </div>
+            
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">
+                总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+            <span id="busuanzi_container_site_uv">
+                访客数<span id="busuanzi_value_site_uv"></span>人次
+            </span>  
+
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+              
+        </div>
+
+       
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111464093-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+
+  </div>
+</body>
+</html>

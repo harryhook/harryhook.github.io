@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="HarryHook" />
+
+
+
+<meta name="description" content="当 MySQL 规模变的越来越大时， 如何保证高效且经济？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 扩展">
+<meta property="og:url" content="https://coderunning.fun/2020/04/06/mysql/note10-scaling-mysql/index.html">
+<meta property="og:site_name" content="harryhook&#39;s blog">
+<meta property="og:description" content="当 MySQL 规模变的越来越大时， 如何保证高效且经济？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://coderunning.fun/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg">
+<meta property="og:image" content="https://coderunning.fun/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8.jpg">
+<meta property="article:published_time" content="2020-04-06T15:31:32.000Z">
+<meta property="article:modified_time" content="2022-11-13T03:58:14.888Z">
+<meta property="article:author" content="HarryHook">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://coderunning.fun/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="harryhook&#39;s blog" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/kagami.ico">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/yellow/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>MySQL 扩展 | harryhook&#39;s blog</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script>
+        yiliaConfig.jquery_ui = [true, "//cdn.bootcss.com/jqueryui/1.10.4/jquery-ui.min.js", "//cdn.bootcss.com/jqueryui/1.10.4/css/jquery-ui.min.css"];
+    </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?3079c0591c6effd277707fa1e2fb142e";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/me.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/"></a></h1>
+        </hgroup>
+
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="true" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">分类&amp;标签</a></li>
+                        
+                            <li><a href="/about/">关于</a></li>
+                        
+                            <li><a href="/running/">跑步</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" rel="noopener" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java%E5%AF%B9%E8%B1%A1/" rel="tag">Java对象</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ThreadPool/" rel="tag">ThreadPool</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/leetcode/" rel="tag">leetcode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linkedlist/" rel="tag">linkedlist</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA/" rel="tag">博客搭建</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">行为型模式</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+
+                
+                
+                <section class="switch-part switch-part3">
+                
+                    <div id="js-aboutme">会写点代码的跑步爱好者</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页"></a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/me.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页"></a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">分类&amp;标签</a></li>
+                
+                    <li><a href="/about/">关于</a></li>
+                
+                    <li><a href="/running/">跑步</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:chenhaowei93@163.com" title="Email"></a>
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/HarryHook" title="GitHub"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-mysql/note10-scaling-mysql" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2020/04/06/mysql/note10-scaling-mysql/" class="article-date">
+      <time datetime="2020-04-06T15:31:32.000Z" itemprop="datePublished">2020-04-06</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      MySQL 扩展
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>当 MySQL 规模变的越来越大时， 如何保证高效且经济？</p>
+<span id="more"></span>
+<h1>可扩展性</h1>
+<p>可扩展性表明当需要增加资源以执行更多工作时系统能获得收益的同等提升。 缺乏扩展能力的系统达到收益递减的转折点后， 将无法进一步增长。</p>
+<p>系统是否需要扩展一般从哪个四个因素进行衡量：</p>
+<ul>
+<li>数据量</li>
+<li>用户量</li>
+<li>用户活跃度</li>
+<li>相关数据集大小</li>
+</ul>
+<p>增加服务器并不能完全增加系统的吞吐率， 大多数情况下都属于 USL 扩展</p>
+<h1>如何扩展 MySQL</h1>
+<p>MySQL 扩展通常分为&quot;垂直&quot;扩展和&quot;水平&quot;扩展。 垂直扩展就是增加更多的机器， 水平扩展是将任务拆分分配到多台机器上。</p>
+<h2 id="知晓系统的底线">知晓系统的底线</h2>
+<ul>
+<li>应用的功能是否都开发完毕了？ 是否到了需要扩展的阶段了。</li>
+<li>预期的最大负载是多少？</li>
+<li>如果局部失效如何防范。</li>
+</ul>
+<h2 id="扩展前先优化">扩展前先优化</h2>
+<ul>
+<li>优化性能</li>
+<li>升级硬件</li>
+</ul>
+<h2 id="向上扩展-垂直扩展">向上扩展-垂直扩展</h2>
+<p>建议使用更新的 MySQL 版本， 最大的配置是 256G RAM， 32 核 CPU， 再之后收益就递减了。<br>
+但是向上扩展的开销太大了， 并不是很好的选择。</p>
+<h2 id="向外扩展-水平扩展">向外扩展-水平扩展</h2>
+<p>向外扩展可以分为三步：复制、拆分和数据分片</p>
+<p>最简单的做法是通过复制将数据分发到多个服务器上， 通过备库进行读查询， 对以读为主的应用很有效。 此外常见的做法是工作负载到多个节点， 其中节点可能是一个服务器， 也可能是一个集群， 通常有以下几种：</p>
+<ul>
+<li>一个主-主复制双机机构， 一个主动，一个被动；</li>
+<li>一主多备</li>
+<li>一个主动服务器，使用分布式复制设备作为备库</li>
+<li>一个基于存储区域网络的集群</li>
+</ul>
+<p>下面是一些不同的分布负载方案</p>
+<h3 id="按功能拆分">按功能拆分</h3>
+<p>不同的节点执行不同的任务，比如门户网站将论坛、新闻、知识库等不同的功能所需的数据存在不同的数据库中。</p>
+<p>此外也可以对单台服务器的数据进行划分， 前提是表与表之间不会进行关联操作。</p>
+<p>实际上不能通过功能划分进行无限扩展， 当一个功能与单个 MySQL 绑定后就只能垂直扩展了。</p>
+<h3 id="数据分片">数据分片</h3>
+<p>在扩展大型 MySQL 应用的方案中，数据分片是最通用且最成功的方法。在数据分片前需要考虑当前的应用是否需要分片， 比如正在搭建的博客网站， 预计有 1000 万用户，这个时候就算把所以用户数据放在内存中也是可行的， 但是当用户达到 5 亿时就可能需要对数据进行分片了。</p>
+<p>如果在设计之初就已经预计到分片， 之后分片就会容易很多。</p>
+<p>单台服务器的功能划分：</p>
+<p><img src="/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg" alt="单台机器"></p>
+<p>继续演进， 通过用户 ID 对文章和内容进行分片：<br>
+<img src="/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8.jpg" alt="分布式存储"></p>
+<p>如果事先知道应用会扩展到很大规模且了解功能划分的局限性， 就可以跳过中间步骤， 直接从单个节点升级为分片数据存储。</p>
+<h3 id="选择分区键">选择分区键</h3>
+<p>数据分片的挑战在于查找与获取数据， 对经常查询的数据减少分片， 最关键的点在于为数据选择一个或多个分区键， 因为分区键决定了每一行分配在哪一个分片中。 当知道一个对象的分区键， 就知道了</p>
+<ul>
+<li>应该从哪里存储数据</li>
+<li>应该从哪里查询数据</li>
+</ul>
+<p>一个好的分区键通常是数据库中一个非常重要的实体的主键， 例如通过用户 ID 来分割数据， 分片的单元就是用户。</p>
+<p>选择分区键的时候尽可能选择能够避免跨分片查询的键， 同时也让分片足够小以免过大的数据导致问题。</p>
+<h3 id="多个分区键">多个分区键</h3>
+<p>复杂数据分区困难时， 会拥有多个分区键。 例如需要对博客的数据按照用户 ID 和 文章 ID 进行分片， 这样即可以根据用户 ID 获取该用户的所有文章， 还可以通过文章 ID 获取该文章的所有评论。</p>
+<h3 id="跨分片查询">跨分片查询</h3>
+<p>大多数分片应用都有一些查询需要对多个分片的数据进行聚合或关联操作。 例如获取当前网站最受欢迎的用户， 就需要把所有分片访问一遍， 实际上需要拆分成多条并行执行的查询， 每个分片执行一条。</p>
+<p>在并行查询时， 某些语言比如PHP对并行支持的并不好， 会利用 C 或者 JAVA 写一个辅助应用来执行聚合查询</p>
+<p>同样的， 使用汇总表也可以提升跨分片查询的效率， 可以遍历所有分片来生成汇总表并将结果在每个分片上冗余存储。</p>
+<h3 id="分片与节点">分片与节点</h3>
+<p>分片和节点并不是一对一的关系， 尽可能让分片的大小小于节点的容量。</p>
+<p>首先分片足够小便于管理， 使得数据的备份和恢复更加容易， 假设100 G 的数据， 分为 100 个 1G 的分片， 存储在单个节点上， 对数据加索引时， 单个100 G 的表的执行时间会比 100 个 1G 的分片执行的时间更长。</p>
+<p>其次， 小的分片更方便转移。</p>
+<h3 id="节点上部署分片">节点上部署分片</h3>
+<p>通常有一下几种方法部署数据分片：</p>
+<ul>
+<li>
+<p>每个分片使用单一数据库，且数据库名相同。对应的应用场景是多实例应用， 每个应用对应一个分片。</p>
+</li>
+<li>
+<p>将多个分片的表放在一个数据库中， 每个表名包含分片号。</p>
+</li>
+<li>
+<p>每个分片使用一个数据库， 数据库中包含所有应用需要的表， 库名中包含分片号但表名不包含分片号。 当应用连接到数据库病不指定数据库名时， 则无须为每个分片编写专门的查询。</p>
+</li>
+<li>
+<p>每个分片使用一个数据库， 并在数据库名和表名包含分片号。</p>
+</li>
+<li>
+<p>每个节点运行多个MySQL示例， 每个实例有一个或多个分片。</p>
+</li>
+</ul>
+<h3 id="固定分配与动态分配">固定分配与动态分配</h3>
+<p>将数据分配到分片中有两种主要的做法： 固定分配和动态分配。两个方法都需要分区函数，行的分区键值作为输入，存储改行的分片作为输出。</p>
+<p>固定分配的好处在于分区函数仅仅依赖于分区键的值， 这样做简单，开销低， 比如使用 CRC32() 做哈希， CRC32(111) % 100  = 81。</p>
+<p>动态分配将每个数据单元映射到一个分片， 假设数据表有 用户ID 与 分片 ID， 根据分区键（用户ID）就可以查到 分片号， 如果没有查到对应分片号， 可以选择将目标分片号与当前用户ID绑定或者延迟更新。</p>
+<h3 id="混合分配">混合分配</h3>
+<p>混合使用固定分配和动态分配， 映射目录不大时， 动态分配很好胜任， 分片单元太多效果会变差。</p>
+<h3 id="显式分配">显式分配</h3>
+<p>很少使用， 不适合在已有数据上分片。</p>
+<h3 id="重新均衡分片数据">重新均衡分片数据</h3>
+<p>在分片间移动数据达到负载均衡。例如需要升级硬件时， 将用户数据从旧分片转移到新分片上， 无需暂停整个分片的服务， 也无需将其设置为只读。 但是进行均衡分片时会影响到用户的使用。</p>
+<h3 id="生成全局唯一-ID">生成全局唯一 ID</h3>
+<p>通常单一数据存储时使用 AUTO_INCREMENT 列来获取唯一 ID， 但是涉及到多台服务器时就不生效了， 此时需要生产全局的唯一 ID， 通常有以下几种做法：</p>
+<p>使用 auto_increment_inncrement 和 auto_increment_offset</p>
+<pre><code>假设两台服务器， 一个偏移量为 1，另一台偏移量为 2， 这样一台服务器始终包含偶数， 一台服务器始终包含奇数。需要仔细配置。
+</code></pre>
+<p>全局节点创建表：</p>
+<pre><code>在一个全局数据库节点中创建一个包含 AUTO_INCREMENT 列的表， 通过这个表生成唯一的数字。
+</code></pre>
+<p>使用 memcached</p>
+<pre><code>memcached的 api 有一个 incr()函数，自动增长一个数字并返回结果。memcached不具备持久性，重启后会初始化缓存的值会从磁盘中查询最大的值，过程慢切不能保证原子性。
+</code></pre>
+<p>批量分配数字</p>
+<pre><code>从全局节点中请求一批数字。
+</code></pre>
+<p>使用复合值</p>
+<pre><code>使用复合值作为唯一 ID。
+</code></pre>
+<p>使用 GUID 值</p>
+<pre><code>使用 UUID() 函数生成全局唯一值
+</code></pre>
+<p>使用全局分配器产生唯一 ID 需要注意避免单点争用成为性能瓶颈。</p>
+<h3 id="分片工具">分片工具</h3>
+<p>使用抽象层可以避免直接让应用访问多个数据源， 而是将数据源隐藏在抽象层，抽象层主要完成以下工作：</p>
+<ul>
+<li>连接到正确的分片并进行查询</li>
+<li>分布式一致性校验</li>
+<li>跨分片结果集聚合</li>
+<li>跨分片关联操作</li>
+<li>锁和事务管理</li>
+<li>创建新的数据分片</li>
+</ul>
+<p>常见的分片工具有 Hibernnate Shards 和 HiveDB。</p>
+<h2 id="多实例扩展">多实例扩展</h2>
+<p>不要在一台服务器上只运行一个服务器实例，让数据分片足够小， 使每台机器都能放置多个分片， 这是一种向上扩展和向外扩展的组合方案。</p>
+<h2 id="通过集群扩展">通过集群扩展</h2>
+<p>对比 MySQL 与 NoSQL</p>
+<h3 id="MySQL-Cluster">MySQL Cluster</h3>
+<p>MySQL Cluster 由 NDB 数据库和 MySQL 存储引擎组成。 其中 NDB 是一个分布式、具备容错性、非共享的数据库， 提供同步复制以及节点间的数据自动分片。 NDB 是一个键-值数据存储， 无法执行类似聚合或者联结操作。</p>
+<h3 id="Clustrix">Clustrix</h3>
+<p>Clustrix 是一个分布式数据库， 支持 MySQL 协议， 它可以直接替代 MySQL， 支持 ACID， 支持 MVCC 的事务型SQL 的数据库。与MySQL Cluster 的不同点在于 Clustrix 是完全分布式且能兼容 MySQL 协议。</p>
+<h3 id="ScaleBase">ScaleBase</h3>
+<p>ScaleBase是一个代理器， 处于应用和多个后端 MySQL 服务器之间， 会把发起的查询进行分裂并将其分发到后端服务器并发执行， 然后汇总结果给应用。</p>
+<h3 id="GenieDB">GenieDB</h3>
+<p>不支持 ACID， 最初用在地理上分布部署的 NoSQL 文档存储。</p>
+<h3 id="Akiban">Akiban</h3>
+<p>查询加速器， 存储物理数据来匹配查询模式， 可以进行低开销的跨表关联操作。</p>
+<h2 id="向内扩展">向内扩展</h2>
+<p>对不断增长的数据最简单的做法对不再需要的数据进行归档和清理， 设计和清理时需要考虑以下几点：</p>
+<ul>
+<li>对应用的影响</li>
+<li>要归档的行</li>
+<li>维护数据的一致性</li>
+<li>避免数据丢失</li>
+<li>解除归档</li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    <span id="busuanzi_container_page_pv">
+      总阅读量 <span id="busuanzi_value_page_pv"></span> 次
+    </span>
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">可扩展性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">如何扩展 MySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A5%E6%99%93%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%95%E7%BA%BF"><span class="toc-number">2.1.</span> <span class="toc-text">知晓系统的底线</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E5%89%8D%E5%85%88%E4%BC%98%E5%8C%96"><span class="toc-number">2.2.</span> <span class="toc-text">扩展前先优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%91%E4%B8%8A%E6%89%A9%E5%B1%95-%E5%9E%82%E7%9B%B4%E6%89%A9%E5%B1%95"><span class="toc-number">2.3.</span> <span class="toc-text">向上扩展-垂直扩展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%91%E5%A4%96%E6%89%A9%E5%B1%95-%E6%B0%B4%E5%B9%B3%E6%89%A9%E5%B1%95"><span class="toc-number">2.4.</span> <span class="toc-text">向外扩展-水平扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%89%E5%8A%9F%E8%83%BD%E6%8B%86%E5%88%86"><span class="toc-number">2.4.1.</span> <span class="toc-text">按功能拆分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87"><span class="toc-number">2.4.2.</span> <span class="toc-text">数据分片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E5%88%86%E5%8C%BA%E9%94%AE"><span class="toc-number">2.4.3.</span> <span class="toc-text">选择分区键</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E4%B8%AA%E5%88%86%E5%8C%BA%E9%94%AE"><span class="toc-number">2.4.4.</span> <span class="toc-text">多个分区键</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%A8%E5%88%86%E7%89%87%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.4.5.</span> <span class="toc-text">跨分片查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%89%87%E4%B8%8E%E8%8A%82%E7%82%B9"><span class="toc-number">2.4.6.</span> <span class="toc-text">分片与节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E4%B8%8A%E9%83%A8%E7%BD%B2%E5%88%86%E7%89%87"><span class="toc-number">2.4.7.</span> <span class="toc-text">节点上部署分片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BA%E5%AE%9A%E5%88%86%E9%85%8D%E4%B8%8E%E5%8A%A8%E6%80%81%E5%88%86%E9%85%8D"><span class="toc-number">2.4.8.</span> <span class="toc-text">固定分配与动态分配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B7%E5%90%88%E5%88%86%E9%85%8D"><span class="toc-number">2.4.9.</span> <span class="toc-text">混合分配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%BE%E5%BC%8F%E5%88%86%E9%85%8D"><span class="toc-number">2.4.10.</span> <span class="toc-text">显式分配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E6%96%B0%E5%9D%87%E8%A1%A1%E5%88%86%E7%89%87%E6%95%B0%E6%8D%AE"><span class="toc-number">2.4.11.</span> <span class="toc-text">重新均衡分片数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80-ID"><span class="toc-number">2.4.12.</span> <span class="toc-text">生成全局唯一 ID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E7%89%87%E5%B7%A5%E5%85%B7"><span class="toc-number">2.4.13.</span> <span class="toc-text">分片工具</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E5%AE%9E%E4%BE%8B%E6%89%A9%E5%B1%95"><span class="toc-number">2.5.</span> <span class="toc-text">多实例扩展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E9%9B%86%E7%BE%A4%E6%89%A9%E5%B1%95"><span class="toc-number">2.6.</span> <span class="toc-text">通过集群扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL-Cluster"><span class="toc-number">2.6.1.</span> <span class="toc-text">MySQL Cluster</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Clustrix"><span class="toc-number">2.6.2.</span> <span class="toc-text">Clustrix</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ScaleBase"><span class="toc-number">2.6.3.</span> <span class="toc-text">ScaleBase</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GenieDB"><span class="toc-number">2.6.4.</span> <span class="toc-text">GenieDB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Akiban"><span class="toc-number">2.6.5.</span> <span class="toc-text">Akiban</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%91%E5%86%85%E6%89%A9%E5%B1%95"><span class="toc-number">2.7.</span> <span class="toc-text">向内扩展</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-6 i,
+        .toc-level-6 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"true"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2020/04/11/mysql/note11-load-banlancing/" title="上一篇: MySQL 负载均衡">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2020/03/29/leetcode/linkedlist/convert-sorted-list-to-binary-search-tree/" title="下一篇: LeetCode 109. Convert Sorted List to Binary Search Tree">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2022/06/02/java/%E4%B8%80%E4%B8%AAjava%E5%AF%B9%E8%B1%A1%E6%9C%89%E5%A4%9A%E5%A4%A7/">一个Java对象到底有多大</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/21/thread/generate-thread-pool/">创建线程池的五种方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2022/03/13/mysql/MySQL-Limit/">MySQL Limit 用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/">一文吃透 MVCC</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/26/design-pattern/%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">迭代器模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/13/leetcode/linkedlist/sort-list/">LeetCode 148. Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/12/leetcode/linkedlist/insertion-sort-list/">LeetCode 147. Insertion Sort List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/">组合模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/10/leetcode/linkedlist/reorder-list/">LeetCode 143. Reorder List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/07/design-pattern/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">模板方法模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/">中介者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/29/design-pattern/%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F/">状态模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">命令模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/24/design-pattern/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">策略模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle-ii/">LeetCode 142. Linked List Cycle II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/19/leetcode/linkedlist/linked-list-cycle/">LeetCode 141. Linked List Cycle</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/17/design-pattern/%E4%BA%AB%E5%85%83%E6%A8%A1%E5%BC%8F/">享元模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/12/leetcode/linkedlist/copy-list-with-random-pointer/">LeetCode 138. Copy List with Random Pointer</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/11/mysql/note11-load-banlancing/">MySQL 负载均衡</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/04/06/mysql/note10-scaling-mysql/">MySQL 扩展</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/29/leetcode/linkedlist/convert-sorted-list-to-binary-search-tree/">LeetCode 109. Convert Sorted List to Binary Search Tree</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/28/mysql/note9-replica-problems/">MySQL 复制存在的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/22/leetcode/linkedlist/reverse-linked-list-ii/">LeetCode 92. Reverse Linked List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/21/mysql/note8-replication-basic/">MySQL 复制概述</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/15/design-pattern/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">桥接模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/12/mysql/note7-query-optimize2/">MySQL 优化器与特定类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/08/mysql/note6-query-optimize/">MySQL 查询过程及优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/03/04/mysql/note5-cluster-index/">聚簇索引、二级索引与覆盖索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/29/mysql/note4-btree-practice/">B-Tree 索引实践</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/26/leetcode/linkedlist/partition-list/">LeetCode 86. Partition List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list-ii/">LeetCode 82. Remove Duplicates from Sorted List II</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/remove-duplicates-from-sorted-list/">LeetCode 83.Remove Duplicates from Sorted List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/rotate-list/">LeetCode 61. Rotate List</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/leetcode/linkedlist/reverse-nodes-in-k-group/">LeetCode 25. Reverse Nodes In k Group</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/23/mysql/note-3-btree-and-hash/">B-Tree 索引和 Hash 索引</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/18/blog/git-pages-mac/">Hexo + Github 搭建博客（Mac篇）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/16/mysql/note-2-shcema-design/">Schema设计与数据类型优化</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/02/08/mysql/note-1-mysql-history/">MySQL架构与历史</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/leetcode/linkedlist/SwapPairs/">LeetCode 24. Swap Nodes in Pairs</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/21/design-pattern/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">代理模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/18/leetcode/linkedlist/MergeKLists/">LeetCode 23. Merge k Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/17/leetcode/linkedlist/MergeTwoLists/">LeetCode 21. Merge Two Sorted Lists</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/09/leetcode/linkedlist/RemoveNthFromEnd/">LeetCode 19. Remove Nth From End of List</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/">装饰者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/12/02/leetcode/linkedlist/AddTwoNumbers/">LeetCode 2. Add Two Numbers</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/30/design-pattern/Adapter%E6%A8%A1%E5%BC%8F/">Adapter模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/22/design-pattern/%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F/">外观模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/">建造者模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/23/design-pattern/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">单例模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/">抽象工厂</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95/">工厂方法</a></li><li class="post-list-item"><a class="post-list-link" href="/2019/10/17/design-pattern/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82/">简单工厂</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+
+    
+      <div id="gitalk-container"></div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+<script>
+	var gitalk = new Gitalk({
+	  clientID: '74dc42ae544dae724ca4',
+	  clientSecret: '0b40598c63d2f0fd1f47176355d2f03024ec0546',
+	  repo: 'harryhook.github.io',
+	  owner: 'harryhook',
+	  admin: ['harryhook'],
+	  id: md5(window.location.pathname),
+	  distractionFreeMode: true
+	})
+
+	gitalk.render('gitalk-container')
+</script>
+    
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2019-2022 HarryHook
+            </div>
+            
+            <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <span id="busuanzi_container_site_pv">
+                总访问量<span id="busuanzi_value_site_pv"></span>次
+            </span>
+            <span id="busuanzi_container_site_uv">
+                访客数<span id="busuanzi_value_site_uv"></span>人次
+            </span>  
+
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+              
+        </div>
+
+       
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-111464093-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+
+  </div>
+</body>
+</html>
