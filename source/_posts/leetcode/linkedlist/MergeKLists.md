@@ -35,10 +35,10 @@ LeetCode hard难度题， 看到这道题我的第一思路是链表两两比较
     }
 ```
 
-mergeTwoLists(ListNode l1, ListNode l2); 参见[合并两个有序联链表](/2019/12/17/leetcode/linkedlist/MergeTwoLists)
+mergeTwoLists(ListNode l1, ListNode l2); 参见[合并两个有序联链表](2019/12/17/leetcode/linkedlist/MergeTwoLists)
 
 算法复杂度 k * n， ac结果如下：
-![n-1次比较](/n-1次比较.JPG)
+![n-1次比较](n-1次比较.JPG)
 
 # 新的思路
 
@@ -51,7 +51,7 @@ mergeTwoLists(ListNode l1, ListNode l2); 参见[合并两个有序联链表](/20
 * 重复之前的步骤， 直到队列为空。
 
 示意图如下：
-![示例](/demo.jpg)
+![示例](demo.jpg)
 
 
 # 代码
@@ -100,4 +100,4 @@ class Solution {
 ```
 
 可以看下优化后的方法的ac结果， 相比之前快了很多：
-![better](/better.jpg)
+![better](better.jpg)

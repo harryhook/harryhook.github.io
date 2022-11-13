@@ -19,7 +19,7 @@ random_index: the index of the node (range from 0 to n-1) where random pointer p
 
 # Example 1:
 
-![expample1](/e1.png)
+![expample1](e1.png)
 
 > Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
 > 

@@ -26,7 +26,7 @@ You may not modify the values in the list's nodes, only nodes itself may be chan
 
 示意图如下：
 
-![demo](/demo.jpg)
+![demo](demo.jpg)
 
 # 代码
 

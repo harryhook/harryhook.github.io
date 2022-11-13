@@ -36,7 +36,7 @@ Given a sorted linked list, delete all nodes that have duplicate numbers, leavin
 
 # 示意图
 示意图如下：
-![demo](/demo.jpg)
+![demo](demo.jpg)
 
 # 代码
 

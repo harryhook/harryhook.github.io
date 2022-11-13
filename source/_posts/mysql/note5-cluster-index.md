@@ -20,7 +20,7 @@ categories: [数据库]
 
 **聚簇索引**结构如下， 同时也是 B+Tree 索引
 
-![聚簇索引示例](/cluster_index.jpg)
+![聚簇索引示例](cluster_index.jpg)
 
 **特性**：
 
@@ -35,12 +35,12 @@ categories: [数据库]
 InnoDB 中除过主键索引， 其余的统称为二级索引，二级索引会在叶子节点保存主键。
 当通过二级索引进行查找时， 二级索引会通过叶子结点找到主键， 然后再根据主键找到数据所在的行， 这样做的好处是减少了数据行移动和页分裂时二级索引的维护工作, 但是通过二级索引查找数据时相当于利用了两个 B 树, 要解决这种问题需要引入**覆盖索引**， 覆盖索引接下来我们会讲到。
 
-![InnoDB 聚簇索引](/cluster_index.png) ![InnoDB 二级索引](/secondary_index.png)
+![InnoDB 聚簇索引](cluster_index.png) ![InnoDB 二级索引](secondary_index.png)
 
 
 在实际的查找过程如下：
 
-![实际查找过程](/b-tree-index.jpg)
+![实际查找过程](b-tree-index.jpg)
 
 以 Tom 为例， 在二级索引key(b, c)中， 先找到 b = 22 and c = tom 的行， 同时得到row id = 30， 根据 row id 回到主键索引， 就能找到 row id = 30 的所有数据。
 

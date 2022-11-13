@@ -22,7 +22,7 @@ Sort a linked list using insertion sort.
 > Output: -1->0->3->4->5
 
 
-![示意图](/example.gif)
+![示意图](example.gif)
 
 # 题意
 
@@ -37,7 +37,7 @@ Sort a linked list using insertion sort.
 # 示意图
 
 
-![示意图](/插入排序.png)
+![示意图](插入排序.png)
 
 # 代码
 

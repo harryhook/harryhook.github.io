@@ -46,7 +46,7 @@ MySQL 复制具有以下一些用途：
 2. 备库 (slave) 从主库的日志复制到自身的中继日志 (relay log);
 3. 备库读取中继日志中的事件， 修改和主库相对应的数据。
 
-![复制原理](/replication-works.jpg)
+![复制原理](replication-works.jpg)
 
 # 复制配置
 有两台 MySQL 服务器 master 和 slave, master 为主服务器， slave 为从服务器， 初始状态时两台服务器数据相同， 当 master 服务器发生变化时， slave 也跟着发生相应的变化， 使得 master 与 slave 的数据信息同步达到备份的目的。
@@ -299,13 +299,13 @@ mysql> UPDATE enormous_table SET col1 = 0;
 
 当开启 log_slave_updates 选项可以让 slave 变成其他服务器的master。 slave 把执行过的事件记录在自己的二进制日志中， 它的slave 就可以从日志中检索并执行事件
 
-![slave 作为 master 发送复制事件](/replicaiton-to-slave.jpg)
+![slave 作为 master 发送复制事件](replicaiton-to-slave.jpg)
 
 ## 复制过滤器
 
 复制过滤器可以让你只复制一部分数据， 有两种复制过滤：master 上过滤记录到二进制日志文件的事件， slave 上过滤记录到中继日志的事件。
 
-![复制过滤器](/replication-of-filter.jpg)
+![复制过滤器](replication-of-filter.jpg)
 
 
 # 复制的常见拓扑结构
@@ -321,7 +321,7 @@ mysql> UPDATE enormous_table SET col1 = 0;
 一主多备是最简单的拓扑结构， slave 之间没有交互。
 当少量写大量读时这种结构非常有用， 将读操作分摊到多个 slave， 从而减小 master 的压力。但是当 slave 增加到一定程度时， slave 对 master 的负载以及网络带宽都会成为性能瓶颈。
 
-![一主多从](/一主多从.jpg)
+![一主多从](一主多从.jpg)
 
 这种结构虽然简单， 但是很灵活， 足以满足大多数需求， 一些建议：
 * 不同的 slave 起到不同的作用（使用不同的索引或者不同的存储引擎）。
@@ -332,7 +332,7 @@ mysql> UPDATE enormous_table SET col1 = 0;
 
 Master-Master 复制的两台服务器，既是  master，又是另一台服务器的 slave。任何一方的变更都会同步给另一方。
 
-![主动模式下的多主复制](/master-master-of-active.jpg)
+![主动模式下的多主复制](master-master-of-active.jpg)
 
 master-master 模式带来的最大问题是如何解决冲突， 如果两台服务器同时修改一条记录。 在 MySQL5.0 之后通过 auto_increment_inrement 和auto_increment_offset， 可以让 MySQL 自动为 INSERT 语句选择不互相冲突的值， 但这仅仅解决了同时想一个包含 AUTO_INCREMENT 列的表插入数据造成的冲突。
 在两台主库上同时写入数据还是很危险， 假设同时执行下面的两条语句：
@@ -349,13 +349,13 @@ master-master 模式带来的最大问题是如何解决冲突， 如果两台�
 
 这是master-master结构变化而来的，它避免了M-M的缺点，实际上，这是一种具有容错和高可用性的系统。它的不同点在于其中一个服务只能进行只读操作。如图：
 
-![被动模式下的多主复制](/master-master-of-passive.jpg)
+![被动模式下的多主复制](master-master-of-passive.jpg)
 
 
 这种拓扑结构使得反复切换主动和被动服务器很方便， 可以应用在故障转移和故障恢复中。
 
 ## 用于备库的主-主结构(Master-Master with Slaves)
 
-![多主多备](/master-master-with-slaves.jpg)
+![多主多备](master-master-with-slaves.jpg)
 
 这种配置的有点事增加了冗余， 对于不同地理位置的复制拓扑， 能够献出单点失效的问题， 同样的， 查询还是分配在 slave 上。

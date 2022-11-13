@@ -21,7 +21,7 @@ To represent a cycle in the given linked list, we use an integer pos which repre
 > 
 > Explanation: There is a cycle in the linked list, where tail connects to the second node.
 
-![example1](/circularlinkedlist.png)
+![example1](circularlinkedlist.png)
 
 # 题意
 
@@ -32,7 +32,7 @@ To represent a cycle in the given linked list, we use an integer pos which repre
 判断是否有环， 与无环的链表相比， 无环的链表如果进行遍历最终会走向 null 结点。
 有环的结点因为环的存在会在环内循环， 所以利用快慢指针， 判断快慢指针是否会重合。
 
-![环形链表循环遍历](/示意图.jpg)
+![环形链表循环遍历](示意图.jpg)
 
 #  代码
 

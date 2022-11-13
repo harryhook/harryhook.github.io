@@ -25,7 +25,7 @@ You should preserve the original relative order of the nodes in each of the two 
 # 思路
 
 既然分区， 分别使用两个链表存储小于 x 的结点以及大于等于 x 的结点， 遍历结束后， 将两个节点相连接；
-![demo](/demo.jpg)
+![demo](demo.jpg)
 
 # 代码
 ```java

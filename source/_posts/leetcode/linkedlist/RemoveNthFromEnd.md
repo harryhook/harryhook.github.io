@@ -42,7 +42,7 @@ Given n will always be valid.
 
 ## 示意图
 
-![示意图](/demo.jpg)
+![示意图](demo.jpg)
 
  
 ## 代码

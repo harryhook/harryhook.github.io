@@ -29,7 +29,7 @@ Note: 1 ≤ m ≤ n ≤ length of list.
 
 # 示意图
 
-![示意图](/demo.png)
+![示意图](demo.png)
 
 # 代码
 ```java

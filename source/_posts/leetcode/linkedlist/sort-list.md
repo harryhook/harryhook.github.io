@@ -34,7 +34,7 @@ Sort a linked list in O(n log n) time using constant space complexity.
 
 2. 其次 n log n 的时间复杂度， 可以采用插入排序、选择排序或者归并排序；
 
-3. 在  [insertion-sort-list](/2020/05/12/leetcode/linkedlist/insertion-sort-list)  中采用了插入排序， 在本题中采用归并排序来解决这个问题。
+3. 在  [insertion-sort-list](2020/05/12/leetcode/linkedlist/insertion-sort-list)  中采用了插入排序， 在本题中采用归并排序来解决这个问题。
 
 
 # 代码

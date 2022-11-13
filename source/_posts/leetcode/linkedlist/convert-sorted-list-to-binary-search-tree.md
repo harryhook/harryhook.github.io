@@ -31,7 +31,7 @@ For this problem, a height-balanced binary tree is defined as a binary tree in w
 
 # 示意图
 
-![示意图](/有序链表转换为平衡二叉树.png)
+![示意图](有序链表转换为平衡二叉树.png)
 
 # 代码
 

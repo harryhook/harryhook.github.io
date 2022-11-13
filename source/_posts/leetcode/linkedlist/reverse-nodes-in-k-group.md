@@ -37,7 +37,7 @@ k is a positive integer and is less than or equal to the length of the linked li
 
 示意图如下：
 
-![demo](/reverse-nodes-k.jpg)
+![demo](reverse-nodes-k.jpg)
 
 # 代码
 

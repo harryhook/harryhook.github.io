@@ -23,7 +23,7 @@ Note: Do not modify the linked list.
 > 
 > Explanation: There is a cycle in the linked list, where tail connects to the second node.
 
-![ex1](/circularlinkedlist.png)
+![ex1](circularlinkedlist.png)
 
 # 题意
 
@@ -45,7 +45,7 @@ Note: Do not modify the linked list.
 
 2(x1 + x2) =  x1 + x2 + x3 + x2  =====>>>> x1 = x3， 所以当快慢指针相遇时从头结点遍历到与慢指针相遇即为环形结点开始处。
 
-![示意图](/ex.png)
+![示意图](ex.png)
 
 详细推导：
 
