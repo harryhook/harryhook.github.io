@@ -9,6 +9,6 @@ date: 2019-10-18 15:56:05
 	
 > 会写点代码的跑步爱好者!
 	
- ![me](me.jpg)
+[![me.jpg](https://s1.ax1x.com/2022/11/13/zFwdeS.jpg)](https://imgse.com/i/zFwdeS)
 
 
