@@ -22,16 +22,16 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="什么是 B-Tree 索引与 Hash 索引？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/black-tree.gif">
-<meta property="og:image" content="https://coderunning.fun/b-tree.gif">
-<meta property="og:image" content="https://coderunning.fun/b-tree-index.jpg">
-<meta property="og:image" content="https://coderunning.fun/hash-index.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/02/23/mysql/note-3-btree-and-hash/black-tree.gif">
+<meta property="og:image" content="https://coderunning.fun/2020/02/23/mysql/note-3-btree-and-hash/b-tree.gif">
+<meta property="og:image" content="https://coderunning.fun/2020/02/23/mysql/note-3-btree-and-hash/b-tree-index.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/02/23/mysql/note-3-btree-and-hash/hash-index.jpg">
 <meta property="article:published_time" content="2020-02-23T03:04:40.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.885Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.377Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="MySQL">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/black-tree.gif">
+<meta name="twitter:image" content="https://coderunning.fun/2020/02/23/mysql/note-3-btree-and-hash/black-tree.gif">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -351,7 +351,7 @@
 </ol>
 </li>
 </ul>
-<p><img src="/black-tree.gif" alt="红黑树"></p>
+<p><img src="/2020/02/23/mysql/note-3-btree-and-hash/black-tree.gif" alt="红黑树"></p>
 <p>红黑树的特点使得红黑树不仅是棵平衡树， 而且比平衡树更加平衡， 读取数据的次数更少。</p>
 <ul>
 <li>B-树：是一种多路搜索树（并不是二叉的）<ol>
@@ -363,7 +363,7 @@
 </ol>
 </li>
 </ul>
-<p><img src="/b-tree.gif" alt="B-Tree"></p>
+<p><img src="/2020/02/23/mysql/note-3-btree-and-hash/b-tree.gif" alt="B-Tree"></p>
 <p>在对比时可以发现， 想要找到 008 的这个数， 在红黑树需要遍历三次， 而在 B-Tree 中只需要两次即可。当数据量越来越大时， B-Tree 会变的矮胖起来， 同样的数据量在 B-Tree 中需要查找的次数更少。对于相同的数据量，B树的更矮，高度更低，查找数据时经过的节点更少，所以造成的随机磁盘IO次数也就更少。(文件索引数据库索引用的都是B树)</p>
 <h1 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B+Tree"></a>B+Tree</h1><p>InnoDB引擎内部使用的是 B+Tree 作为索引的存储结构。</p>
 <ul>
@@ -376,7 +376,7 @@
 <p>B+树是B树的变体，它的完整数据全部存储在叶子结点，非叶子节点只存储key值，这样B+树避免了不必要的磁盘I&#x2F;O，由于所有的查找最终都会到叶子结点，所以也就保证了查询性能的稳定。</p>
 <p>同时由于B+树叶子结点使用指针串联起来，这就方便了范围查询(&gt;、&lt;、between等)。</p>
 <p>而且由于B+树索引本身的有序性，所以在很多情况下可以避免对数据的排序(对磁盘排序要用到文件外排序，而且数据量很大很耗时)。</p>
-<p><img src="/b-tree-index.jpg" alt="B-Tree索引"></p>
+<p><img src="/2020/02/23/mysql/note-3-btree-and-hash/b-tree-index.jpg" alt="B-Tree索引"></p>
 <p>总结起来，使用B+树作为数据库索引的存储结构有以下原因：</p>
 <ul>
 <li>减少磁盘I&#x2F;O，并尽量避免不必要的磁盘I&#x2F;O</li>
@@ -432,7 +432,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from user where `name` = <span class="string">&#x27;Jane&#x27;</span></span><br></pre></td></tr></table></figure>
 
 <p>执行上面这条 sql 语句会先计算 Jane 的哈希值， 然后根据哈希值 2323 对应的指针去找到对应的第一行数据。</p>
-<p><img src="/hash-index.jpg" alt="哈希索引"></p>
+<p><img src="/2020/02/23/mysql/note-3-btree-and-hash/hash-index.jpg" alt="哈希索引"></p>
 <p>单行查询的速度要比 B-Tree索引快很多，但hash索引在使用上有很大的局限性：</p>
 <ul>
 <li>无序性，导致无法范围查找和索引排序。</li>

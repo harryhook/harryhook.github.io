@@ -22,13 +22,13 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="微信公众号的订阅、接收更新、取消订阅就是观察者模式的实现。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png">
+<meta property="og:image" content="https://coderunning.fun/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png">
 <meta property="article:published_time" content="2020-04-25T14:29:10.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.869Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.429Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="行为型模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png">
+<meta name="twitter:image" content="https://coderunning.fun/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -319,7 +319,7 @@
 <p><strong>ConcreteSubject</strong>：具体被观察者，被观察者的实现，含有队列维护观察对象列表，订阅以及取消订阅方法。</p>
 <p><strong>Observer</strong>：观察者， 抽象类或者接口。</p>
 <p><strong>ConcreteObserver</strong>： 具体观察者， 观察者的实现， 当被观察者更新时观察者立马响应发生变更。</p>
-<h1 id="观察者模式-UML"><a href="#观察者模式-UML" class="headerlink" title="观察者模式 UML"></a>观察者模式 UML</h1><p><img src="/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png" alt="观察者模式UML"></p>
+<h1 id="观察者模式-UML"><a href="#观察者模式-UML" class="headerlink" title="观察者模式 UML"></a>观察者模式 UML</h1><p><img src="/2020/04/25/design-pattern/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png" alt="观察者模式UML"></p>
 <h1 id="观察者模式代码示例"><a href="#观察者模式代码示例" class="headerlink" title="观察者模式代码示例"></a>观察者模式代码示例</h1><p>以微信公众号订阅为例， 用户觉得某篇文章不错开始订阅（<strong>attach</strong>）， 定期接受公众号的推送(<strong>notifyAll</strong>)， 但是发现作者的文章质量越来越差，于是部分用户取消订阅(<strong>detach</strong>)。</p>
 <p>被观察者（<strong>Subject</strong>）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">	<span class="comment">// 对应attach方法</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(Observer observer)</span>;</span><br><span class="line">	<span class="comment">// 对应detach方法</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">unRegister</span><span class="params">(Observer observer)</span>;</span><br><span class="line">	<span class="comment">// 对应notifyAll方法 	</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">notifyAllObservers</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

@@ -22,14 +22,14 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="当 MySQL 规模变的越来越大时， 如何保证高效且经济？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg">
-<meta property="og:image" content="https://coderunning.fun/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/04/06/mysql/note10-scaling-mysql/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/04/06/mysql/note10-scaling-mysql/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8.jpg">
 <meta property="article:published_time" content="2020-04-06T15:31:32.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.888Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.385Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="MySQL">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg">
+<meta name="twitter:image" content="https://coderunning.fun/2020/04/06/mysql/note10-scaling-mysql/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -345,8 +345,8 @@
 <h3 id="数据分片"><a href="#数据分片" class="headerlink" title="数据分片"></a>数据分片</h3><p>在扩展大型 MySQL 应用的方案中，数据分片是最通用且最成功的方法。在数据分片前需要考虑当前的应用是否需要分片， 比如正在搭建的博客网站， 预计有 1000 万用户，这个时候就算把所以用户数据放在内存中也是可行的， 但是当用户达到 5 亿时就可能需要对数据进行分片了。</p>
 <p>如果在设计之初就已经预计到分片， 之后分片就会容易很多。</p>
 <p>单台服务器的功能划分：</p>
-<p><img src="/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg" alt="单台机器"></p>
-<p>继续演进， 通过用户 ID 对文章和内容进行分片：<br><img src="/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8.jpg" alt="分布式存储"></p>
+<p><img src="/2020/04/06/mysql/note10-scaling-mysql/%E5%8D%95%E5%8F%B0%E6%9C%BA%E5%99%A8.jpg" alt="单台机器"></p>
+<p>继续演进， 通过用户 ID 对文章和内容进行分片：<br><img src="/2020/04/06/mysql/note10-scaling-mysql/%E5%88%86%E5%B8%83%E5%BC%8F%E5%AD%98%E5%82%A8.jpg" alt="分布式存储"></p>
 <p>如果事先知道应用会扩展到很大规模且了解功能划分的局限性， 就可以跳过中间步骤， 直接从单个节点升级为分片数据存储。</p>
 <h3 id="选择分区键"><a href="#选择分区键" class="headerlink" title="选择分区键"></a>选择分区键</h3><p>数据分片的挑战在于查找与获取数据， 对经常查询的数据减少分片， 最关键的点在于为数据选择一个或多个分区键， 因为分区键决定了每一行分配在哪一个分片中。 当知道一个对象的分区键， 就知道了</p>
 <ul>

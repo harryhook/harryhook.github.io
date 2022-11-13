@@ -22,16 +22,16 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="聚簇索引到底是什么索引？ 覆盖索引又是怎么回事？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/cluster_index.jpg">
-<meta property="og:image" content="https://coderunning.fun/cluster_index.png">
-<meta property="og:image" content="https://coderunning.fun/secondary_index.png">
-<meta property="og:image" content="https://coderunning.fun/b-tree-index.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/03/04/mysql/note5-cluster-index/cluster_index.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/03/04/mysql/note5-cluster-index/cluster_index.png">
+<meta property="og:image" content="https://coderunning.fun/2020/03/04/mysql/note5-cluster-index/secondary_index.png">
+<meta property="og:image" content="https://coderunning.fun/2020/03/04/mysql/note5-cluster-index/b-tree-index.jpg">
 <meta property="article:published_time" content="2020-03-04T13:08:29.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.892Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.423Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="MySQL">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/cluster_index.jpg">
+<meta name="twitter:image" content="https://coderunning.fun/2020/03/04/mysql/note5-cluster-index/cluster_index.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -321,7 +321,7 @@
 <li>如果表中即未定义主键， 也没有合适的唯一索引， InnoDB会隐式地创建一个名为 <strong>GEN_CLUST_INDEX</strong> 的索引作为聚簇索引， 该索引包含了 6 个字节的 row id</li>
 </ul>
 <p><strong>聚簇索引</strong>结构如下， 同时也是 B+Tree 索引</p>
-<p><img src="/cluster_index.jpg" alt="聚簇索引示例"></p>
+<p><img src="/2020/03/04/mysql/note5-cluster-index/cluster_index.jpg" alt="聚簇索引示例"></p>
 <p><strong>特性</strong>：</p>
 <ul>
 <li><p>数据行的逻辑顺序与聚簇索引的顺序一致，B+树中叶子结点以链表的形式串联的，叶子节点中数据行的逻辑顺序只有一种，所以一张表只能有一个聚簇索引。</p>
@@ -332,9 +332,9 @@
 </li>
 </ul>
 <h1 id="二级索引（非聚簇索引）"><a href="#二级索引（非聚簇索引）" class="headerlink" title="二级索引（非聚簇索引）"></a>二级索引（非聚簇索引）</h1><p>InnoDB 中除过主键索引， 其余的统称为二级索引，二级索引会在叶子节点保存主键。<br>当通过二级索引进行查找时， 二级索引会通过叶子结点找到主键， 然后再根据主键找到数据所在的行， 这样做的好处是减少了数据行移动和页分裂时二级索引的维护工作, 但是通过二级索引查找数据时相当于利用了两个 B 树, 要解决这种问题需要引入<strong>覆盖索引</strong>， 覆盖索引接下来我们会讲到。</p>
-<p><img src="/cluster_index.png" alt="InnoDB 聚簇索引"> <img src="/secondary_index.png" alt="InnoDB 二级索引"></p>
+<p><img src="/2020/03/04/mysql/note5-cluster-index/cluster_index.png" alt="InnoDB 聚簇索引"> <img src="/2020/03/04/mysql/note5-cluster-index/secondary_index.png" alt="InnoDB 二级索引"></p>
 <p>在实际的查找过程如下：</p>
-<p><img src="/b-tree-index.jpg" alt="实际查找过程"></p>
+<p><img src="/2020/03/04/mysql/note5-cluster-index/b-tree-index.jpg" alt="实际查找过程"></p>
 <p>以 Tom 为例， 在二级索引key(b, c)中， 先找到 b &#x3D; 22 and c &#x3D; tom 的行， 同时得到row id &#x3D; 30， 根据 row id 回到主键索引， 就能找到 row id &#x3D; 30 的所有数据。</p>
 <h1 id="聚簇索引的优缺点"><a href="#聚簇索引的优缺点" class="headerlink" title="聚簇索引的优缺点"></a>聚簇索引的优缺点</h1><p>优点：</p>
 <ul>

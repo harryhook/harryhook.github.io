@@ -22,14 +22,14 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="咖啡店中的不同咖啡， 加奶泡、加糖其实就是一种装饰者模式。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F-UML.jpg">
+<meta property="og:image" content="https://coderunning.fun/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F-UML.jpg">
 <meta property="og:image" content="https://coderunning.fun/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/InputStream.jpg">
 <meta property="article:published_time" content="2019-12-07T09:50:05.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.867Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.416Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="结构型模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F-UML.jpg">
+<meta name="twitter:image" content="https://coderunning.fun/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F-UML.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -315,7 +315,7 @@
 <p><strong>ConcreteComponent</strong>: 具体组件，即被装饰者。</p>
 <p><strong>Decorator</strong>: 继承自Component。</p>
 <p><strong>ConcreteDecorator</strong>: 具体装饰者， 用于扩展ConcreteComponent。</p>
-<h1 id="装饰者模式UML"><a href="#装饰者模式UML" class="headerlink" title="装饰者模式UML"></a>装饰者模式UML</h1><p><img src="/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F-UML.jpg" alt="UML"><br>注：装饰者和被装饰者对象有相同的超类型，因为装饰者和被装饰者必须是一样的类型，<em><strong>这里利用继承是为了达到类型匹配，而不是利用继承获得行为</strong></em>。</p>
+<h1 id="装饰者模式UML"><a href="#装饰者模式UML" class="headerlink" title="装饰者模式UML"></a>装饰者模式UML</h1><p><img src="/2019/12/07/design-pattern/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F-UML.jpg" alt="UML"><br>注：装饰者和被装饰者对象有相同的超类型，因为装饰者和被装饰者必须是一样的类型，<em><strong>这里利用继承是为了达到类型匹配，而不是利用继承获得行为</strong></em>。</p>
 <h1 id="具体例子"><a href="#具体例子" class="headerlink" title="具体例子"></a>具体例子</h1><p>以星巴克为例子， 提供的菜单中有咖啡（<strong>ConcreteComponentA</strong>）、星冰乐（<strong>ConcreteComponentB</strong>）等饮品， 每个人针对每种咖啡又有自己的口味喜好， 比如有的人喜欢加奶泡（<strong>ConcreteDecoratorA</strong>），有的人喜欢要全糖(<strong>ConcreteDecoratorB</strong>)， 这里面就对应上了装饰者模式。</p>
 <p>首先定义装饰者与被装饰者的超类，Beverage代表饮料，是一个抽象类：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Beverage</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">double</span> <span class="title function_">getCost</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getDescription</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;饮品&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

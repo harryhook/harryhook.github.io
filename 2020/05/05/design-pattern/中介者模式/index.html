@@ -22,15 +22,15 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="当飞机起飞或者着陆时， 如果没有塔台将会发生什么？">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/%E7%B4%A7%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg">
-<meta property="og:image" content="https://coderunning.fun/%E6%9D%BE%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg">
-<meta property="og:image" content="https://coderunning.fun/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F.png">
+<meta property="og:image" content="https://coderunning.fun/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/%E7%B4%A7%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/%E6%9D%BE%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg">
+<meta property="og:image" content="https://coderunning.fun/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F.png">
 <meta property="article:published_time" content="2020-05-05T13:24:59.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.857Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.413Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="行为型模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/%E7%B4%A7%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg">
+<meta name="twitter:image" content="https://coderunning.fun/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/%E7%B4%A7%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -313,14 +313,14 @@
 
 <h1 id="什么是中介者模式"><a href="#什么是中介者模式" class="headerlink" title="什么是中介者模式"></a>什么是中介者模式</h1><p>中介者模式（Mediator Pattern）, 将一系列的对象交互封装起来, 使两个模块不需要频繁地相互显式引用， 从而使其松耦合。 中介者模式又称之为调停模式, 是一种对象行为模式。</p>
 <h1 id="为什么使用中介者模式"><a href="#为什么使用中介者模式" class="headerlink" title="为什么使用中介者模式"></a>为什么使用中介者模式</h1><p>通常情况下多个类交互如下图所示，类之间的关系呈网状结构， 当任一对象发生变化时都有可能影响到多个对象，对象间之间关联形成了紧耦合， 这种设计很难做到类的复用， 而且一旦一个类发生变更， 关联的类也需要做相应的修改。</p>
-<p><img src="/%E7%B4%A7%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg" alt="紧耦合设计"></p>
+<p><img src="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/%E7%B4%A7%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg" alt="紧耦合设计"></p>
 <p>如果类之间的交互改成如下的<strong>星型模式</strong>，任何一个类的变动都只会影响到类本身和中介者，其他方是无感知的，这样就减少了类之间的耦合。 中介者模式就是将类之间的逻辑关系抽象出来，维护在中介者中。</p>
-<p><img src="/%E6%9D%BE%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg" alt="松耦合设计"></p>
+<p><img src="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/%E6%9D%BE%E8%80%A6%E5%90%88%E4%BA%A4%E4%BA%92.jpg" alt="松耦合设计"></p>
 <h1 id="中介者模式组成"><a href="#中介者模式组成" class="headerlink" title="中介者模式组成"></a>中介者模式组成</h1><p><strong>Mediator</strong>: 抽象中介者。定义同事对象到中介的接口。 </p>
 <p><strong>ConcreteMediator</strong>: 具体中介者。实现抽象中介者的方法，需要知道所有的具体同事类， 接收同事类发生的消息。</p>
 <p><strong>Collegue</strong>: 抽象同事类。</p>
 <p><strong>ConcreteCollegue</strong>: 具体同事类。实现抽象同事类的方法， 每个同事类可以有一套属于自己的方法， 但是所有的具体同事类都知晓中介类。</p>
-<h1 id="中介者模式-UML"><a href="#中介者模式-UML" class="headerlink" title="中介者模式 UML"></a>中介者模式 UML</h1><p><img src="/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F.png" alt="中介者模式 UML"></p>
+<h1 id="中介者模式-UML"><a href="#中介者模式-UML" class="headerlink" title="中介者模式 UML"></a>中介者模式 UML</h1><p><img src="/2020/05/05/design-pattern/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F/%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F.png" alt="中介者模式 UML"></p>
 <h1 id="中介者模式代码实现"><a href="#中介者模式代码实现" class="headerlink" title="中介者模式代码实现"></a>中介者模式代码实现</h1><p><strong>抽象中介者</strong>, 此处为塔台的抽象</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IATCMediator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">registerRunway</span><span class="params">(Runway runway)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">registerFlight</span><span class="params">(Flight flight)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">boolean</span> <span class="title function_">isLandingOk</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">setLandingStatus</span><span class="params">(Boolean landingStatus)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong>具体中介者</strong>， 塔台的实现：</p>

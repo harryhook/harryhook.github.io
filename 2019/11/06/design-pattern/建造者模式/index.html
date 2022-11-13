@@ -22,13 +22,13 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="建造者模式让创建的流程统一， 针对不同的请求， 建造出不同的产品">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F.jpg">
+<meta property="og:image" content="https://coderunning.fun/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F.jpg">
 <meta property="article:published_time" content="2019-11-06T06:56:25.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.862Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.419Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="创建型模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F.jpg">
+<meta name="twitter:image" content="https://coderunning.fun/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -322,7 +322,7 @@
 <li>具体产品(<strong>ConcreteProduct</strong>)</li>
 <li>指挥类（<strong>Director</strong>,隔离了客户与生产过程；控制产品的生成过程）</li>
 </ul>
-<h2 id="建造者模式uml"><a href="#建造者模式uml" class="headerlink" title="建造者模式uml"></a>建造者模式uml</h2><p><img src="/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F.jpg" alt="建造者模式"></p>
+<h2 id="建造者模式uml"><a href="#建造者模式uml" class="headerlink" title="建造者模式uml"></a>建造者模式uml</h2><p><img src="/2019/11/06/design-pattern/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F.jpg" alt="建造者模式"></p>
 <h2 id="建造者模式举例"><a href="#建造者模式举例" class="headerlink" title="建造者模式举例"></a>建造者模式举例</h2><p>中关村电脑装机<br>小明（Client）要一台可以流畅吃鸡的游戏主机(Product)， 店老板(Director)让小美(Builder)去配置<br>店老板针对不同的人、不同的配置分别让小美或者其他装机员去装机， 但是装机流程是一样的， 这就是一个典型的建造者模式</p>
 <p>具体代码</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Builder</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">createMainBoard</span><span class="params">(String mainBoard)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">createCPU</span><span class="params">(String cpu)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">createHardDisk</span><span class="params">(String hardDisk)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">createMemory</span><span class="params">(String memory)</span>;</span><br><span class="line"></span><br><span class="line">    Computer <span class="title function_">createComputer</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>

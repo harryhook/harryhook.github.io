@@ -22,13 +22,13 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="将请求的发起方与请求的执行方进行解耦是命令模式最显著的特征。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F.png">
+<meta property="og:image" content="https://coderunning.fun/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F.png">
 <meta property="article:published_time" content="2020-04-26T10:17:23.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.860Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.436Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="行为型模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F.png">
+<meta name="twitter:image" content="https://coderunning.fun/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -315,7 +315,7 @@
 <p><strong>Invoker</strong>: 请求者角色， 负责调用 Client下达的对象执行请求。</p>
 <p><strong>Receiver</strong>: 接受者角色， 负责具体实施和执行请求者的请求。在简单的业务场景下 Receiver可省略， 直接在 ConcreteCommand类中实现具体的处理逻辑。 </p>
 <p><strong>Client</strong>: 客户端。</p>
-<h1 id="命令模式-UML"><a href="#命令模式-UML" class="headerlink" title="命令模式 UML"></a>命令模式 UML</h1><p><img src="/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F.png" alt="命令模式"></p>
+<h1 id="命令模式-UML"><a href="#命令模式-UML" class="headerlink" title="命令模式 UML"></a>命令模式 UML</h1><p><img src="/2020/04/26/design-pattern/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F.png" alt="命令模式"></p>
 <h1 id="命令模式代码实现"><a href="#命令模式代码实现" class="headerlink" title="命令模式代码实现"></a>命令模式代码实现</h1><p><strong>Command 角色</strong></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Command</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">execute</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 

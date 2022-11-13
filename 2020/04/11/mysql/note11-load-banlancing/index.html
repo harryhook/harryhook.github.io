@@ -22,14 +22,14 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="负载均衡的目的在于将流量平均的分发到集群中的机器。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/load_balancing_architecture.png">
-<meta property="og:image" content="https://coderunning.fun/load_balance_middle.png">
+<meta property="og:image" content="https://coderunning.fun/2020/04/11/mysql/note11-load-banlancing/load_balancing_architecture.png">
+<meta property="og:image" content="https://coderunning.fun/2020/04/11/mysql/note11-load-banlancing/load_balance_middle.png">
 <meta property="article:published_time" content="2020-04-11T09:21:46.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.889Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.368Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="MySQL">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/load_balancing_architecture.png">
+<meta name="twitter:image" content="https://coderunning.fun/2020/04/11/mysql/note11-load-banlancing/load_balancing_architecture.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -318,7 +318,7 @@
 <li>透明性：客户端无感知负载方案</li>
 <li>一致性：负载防止状态丢失，而无需应用去跟踪</li>
 </ul>
-<p><img src="/load_balancing_architecture.png" alt="负载均衡经典架构"></p>
+<p><img src="/2020/04/11/mysql/note11-load-banlancing/load_balancing_architecture.png" alt="负载均衡经典架构"></p>
 <p>负载均衡通常与数据分片和复制相关， 需要关心的是读写策略， 一般来说有直接连接， 采用中间件以及一主多备间的负载均衡</p>
 <h1 id="直接连接"><a href="#直接连接" class="headerlink" title="直接连接"></a>直接连接</h1><p>负载均衡并不只是配置在应用以及 MySQL 之间的东西，也可以直接连接到服务器。</p>
 <h2 id="复制上的读写分离"><a href="#复制上的读写分离" class="headerlink" title="复制上的读写分离"></a>复制上的读写分离</h2><p>如何避免因为读写分离引起的脏数据的问题， 当一个用户进行了修改新增了一条评论， 但是刷新页面后却没有看到更新，这种通常都是因为从备库读取到了脏数据。</p>
@@ -350,7 +350,7 @@
 <p> 所有通常不建议使用这种方式。</p>
 <h2 id="转移-IP-地址"><a href="#转移-IP-地址" class="headerlink" title="转移 IP 地址"></a>转移 IP 地址</h2><p> 为每一个物理服务器分配一个固定的 IP 地址， 再为每个逻辑上的服务使用一个虚拟的 IP 地址。</p>
 <h1 id="引入中间件"><a href="#引入中间件" class="headerlink" title="引入中间件"></a>引入中间件</h1><p> 之前讨论的方案是应用与 MySQL 直连， 实际上很多解决方案会引入中间件， 作为网络代理一边接受所有的通信请求， 另一边将这些请求派发到指定的机器上。 如图所示的解决方案</p>
-<p> <img src="/load_balance_middle.png" alt="负载均衡中间件"></p>
+<p> <img src="/2020/04/11/mysql/note11-load-banlancing/load_balance_middle.png" alt="负载均衡中间件"></p>
 <h2 id="负载均衡器"><a href="#负载均衡器" class="headerlink" title="负载均衡器"></a>负载均衡器</h2><p> 负载均衡器更多用在 WEB 服务商， 因为大多数的负载均衡器都支持HTTP， MySQL 的链接都是 TCP&#x2F;IP 链接， 所以在 MySQL上使用多用途负载均衡器， 但是由于缺少 MySQL 专有的特性， 会有许多限制。</p>
 <ul>
 <li>除非负载均衡器知道 MySQL 的负载， 否则无法做到恨到的负载均衡。</li>

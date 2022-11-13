@@ -22,13 +22,13 @@
 <meta property="og:site_name" content="harryhook&#39;s blog">
 <meta property="og:description" content="文件夹的设计就是最经典的组合模式。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://coderunning.fun/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F.png">
+<meta property="og:image" content="https://coderunning.fun/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F.png">
 <meta property="article:published_time" content="2020-05-11T08:34:58.000Z">
-<meta property="article:modified_time" content="2022-11-13T03:58:14.867Z">
+<meta property="article:modified_time" content="2022-11-13T06:09:20.362Z">
 <meta property="article:author" content="HarryHook">
 <meta property="article:tag" content="结构型模式">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://coderunning.fun/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F.png">
+<meta name="twitter:image" content="https://coderunning.fun/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -314,7 +314,7 @@
 <h1 id="组合模式组成"><a href="#组合模式组成" class="headerlink" title="组合模式组成"></a>组合模式组成</h1><p><strong>Component</strong>: 抽象构件，接口或者抽象类。 定义组合对象与叶子对象的共同方法。</p>
 <p><strong>Leaf</strong>: 叶子构件，在组合结构中表示叶子节点对象。叶子节点没有子节点，实现了抽象构件中定义的行为。</p>
 <p><strong>Composite</strong>: 容器构件，在组合结构中表示容器节点对象，容器节点包含子节点，子节点可以是容器节点也可以是叶子节点。 容器构件实现了抽象构件中定义的行为， 也可以自己定义特殊的行为。</p>
-<h1 id="组合模式-uml"><a href="#组合模式-uml" class="headerlink" title="组合模式 uml"></a>组合模式 uml</h1><p><img src="/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F.png" alt="组合模式 UML"></p>
+<h1 id="组合模式-uml"><a href="#组合模式-uml" class="headerlink" title="组合模式 uml"></a>组合模式 uml</h1><p><img src="/2020/05/11/design-pattern/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F/%E7%BB%84%E5%90%88%E6%A8%A1%E5%BC%8F.png" alt="组合模式 UML"></p>
 <h1 id="组合模式代码实现"><a href="#组合模式代码实现" class="headerlink" title="组合模式代码实现"></a>组合模式代码实现</h1><p>定义 Component</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Component</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">print</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;不支持打印操作&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
