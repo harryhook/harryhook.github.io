@@ -308,27 +308,24 @@
           
         <p>微信公众号的订阅、接收更新、取消订阅就是观察者模式的实现。</p>
 <span id="more"></span>
-<h1>什么是观察者模式</h1>
-<p>观察者模式（Observer Pattern）属于对象行为型模式。当一个对象与多个对象存在一对多的关系时， 当一个对象进行修改需要<strong>通知</strong>关注该对象的多个对象作出相应的修改。</p>
-<h1>在什么情况下使用观察者模式</h1>
-<ol>
+
+<h1 id="什么是观察者模式"><a href="#什么是观察者模式" class="headerlink" title="什么是观察者模式"></a>什么是观察者模式</h1><p>观察者模式（Observer Pattern）属于对象行为型模式。当一个对象与多个对象存在一对多的关系时， 当一个对象进行修改需要<strong>通知</strong>关注该对象的多个对象作出相应的修改。</p>
+<h1 id="在什么情况下使用观察者模式"><a href="#在什么情况下使用观察者模式" class="headerlink" title="在什么情况下使用观察者模式"></a>在什么情况下使用观察者模式</h1><ol>
 <li>对象间存在一对多的关系</li>
 <li>被观察者发生变更时需要通知其他观察者</li>
 <li>跨系统的消息交互</li>
 </ol>
-<h1>观察者模式组成</h1>
-<p><strong>Subject</strong>: 被观察者， 抽象类或者接口。</p>
+<h1 id="观察者模式组成"><a href="#观察者模式组成" class="headerlink" title="观察者模式组成"></a>观察者模式组成</h1><p><strong>Subject</strong>: 被观察者， 抽象类或者接口。</p>
 <p><strong>ConcreteSubject</strong>：具体被观察者，被观察者的实现，含有队列维护观察对象列表，订阅以及取消订阅方法。</p>
 <p><strong>Observer</strong>：观察者， 抽象类或者接口。</p>
 <p><strong>ConcreteObserver</strong>： 具体观察者， 观察者的实现， 当被观察者更新时观察者立马响应发生变更。</p>
-<h1>观察者模式 UML</h1>
-<p><img src="/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png" alt="观察者模式UML"></p>
-<h1>观察者模式代码示例</h1>
-<p>以微信公众号订阅为例， 用户觉得某篇文章不错开始订阅（<strong>attach</strong>）， 定期接受公众号的推送(<strong>notifyAll</strong>)， 但是发现作者的文章质量越来越差，于是部分用户取消订阅(<strong>detach</strong>)。</p>
+<h1 id="观察者模式-UML"><a href="#观察者模式-UML" class="headerlink" title="观察者模式 UML"></a>观察者模式 UML</h1><p><img src="/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F.png" alt="观察者模式UML"></p>
+<h1 id="观察者模式代码示例"><a href="#观察者模式代码示例" class="headerlink" title="观察者模式代码示例"></a>观察者模式代码示例</h1><p>以微信公众号订阅为例， 用户觉得某篇文章不错开始订阅（<strong>attach</strong>）， 定期接受公众号的推送(<strong>notifyAll</strong>)， 但是发现作者的文章质量越来越差，于是部分用户取消订阅(<strong>detach</strong>)。</p>
 <p>被观察者（<strong>Subject</strong>）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">	<span class="comment">// 对应attach方法</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(Observer observer)</span>;</span><br><span class="line">	<span class="comment">// 对应detach方法</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">unRegister</span><span class="params">(Observer observer)</span>;</span><br><span class="line">	<span class="comment">// 对应notifyAll方法 	</span></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">notifyAllObservers</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>具体被观察者（<strong>ConcreteSubject</strong>），这里指的是被订阅的公众号</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SubscribeSubject</span> <span class="keyword">implements</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">    <span class="comment">// 观察者队列</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;Observer&gt; observerList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(Observer observer)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (observer != <span class="literal">null</span>) &#123;</span><br><span class="line">            System.out.println(observer.toString() + <span class="string">&quot;, 新增订阅&quot;</span>);</span><br><span class="line">            observerList.add(observer);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">unRegister</span><span class="params">(Observer observer)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (observerList.contains(observer)) &#123;</span><br><span class="line">            System.out.println(observer.toString() + <span class="string">&quot;, 取消订阅&quot;</span>);</span><br><span class="line">            observerList.remove(observer);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">notifyAllObservers</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (Observer observer : observerList) &#123;</span><br><span class="line">            observer.update(observer.toString() +<span class="string">&quot;, 新的订阅内容更新了！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>观察者（<strong>Observer</strong>）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Observer</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">update</span><span class="params">(String content)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>具体被观察者（<strong>ConcreteObserver</strong>）， 代表订阅公众号的微信用户</p>
@@ -346,8 +343,7 @@ HarryHook, 新的订阅内容更新了！
 
 Krook, 取消订阅
 </code></pre>
-<h1>观察者模式优缺点</h1>
-<p>优点：</p>
+<h1 id="观察者模式优缺点"><a href="#观察者模式优缺点" class="headerlink" title="观察者模式优缺点"></a>观察者模式优缺点</h1><p>优点：</p>
 <ul>
 <li>解除耦合， 让双方面向接口交互</li>
 </ul>
@@ -370,7 +366,7 @@ Krook, 取消订阅
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">什么是观察者模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">在什么情况下使用观察者模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">观察者模式组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">观察者模式 UML</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">观察者模式代码示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">观察者模式优缺点</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.</span> <span class="toc-text">什么是观察者模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9C%A8%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E4%BD%BF%E7%94%A8%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">在什么情况下使用观察者模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E7%BB%84%E6%88%90"><span class="toc-number">3.</span> <span class="toc-text">观察者模式组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F-UML"><span class="toc-number">4.</span> <span class="toc-text">观察者模式 UML</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="toc-number">5.</span> <span class="toc-text">观察者模式代码示例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">6.</span> <span class="toc-text">观察者模式优缺点</span></a></li></ol>
         
     </div>
     <style>

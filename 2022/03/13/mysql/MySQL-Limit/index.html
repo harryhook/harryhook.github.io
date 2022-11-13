@@ -306,16 +306,16 @@
           
         <p>常见的mysql limit有以下3种</p>
 <span id="more"></span>
+
 <ol>
-<li>limit 3<br>
-查询满足条件的前三条数据</li>
-<li>limit 3, 1<br>
-满足条件的三条数据， 从1开始， 查出2，3，4</li>
+<li>limit 3<br> 查询满足条件的前三条数据</li>
+<li>limit 3, 1<br> 满足条件的三条数据， 从1开始， 查出2，3，4</li>
 <li>limit 3 offset 1， 取出三条数据，跳过1，查出2，3，4</li>
 </ol>
 <p>针对limit offset 的优化，又名书签优化法</p>
 <p>优化前：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">table</span>  limit <span class="number">10</span> <span class="keyword">offset</span> <span class="number">80001</span>;</span><br></pre></td></tr></table></figure>
+
 <p>优化后：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">table</span> id <span class="operator">&gt;</span><span class="number">80000</span> limit <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
       

@@ -309,46 +309,37 @@
           
         <p>Given a sorted linked list, delete all nodes that have duplicate numbers, leaving only distinct numbers from the original list.</p>
 <span id="more"></span>
-<h1>Example 1:</h1>
-<blockquote>
+
+<h1 id="Example-1"><a href="#Example-1" class="headerlink" title="Example 1:"></a>Example 1:</h1><blockquote>
 <p>Input: 1-&gt;2-&gt;3-&gt;3-&gt;4-&gt;4-&gt;5</p>
 <p>Output: 1-&gt;2-&gt;5</p>
 </blockquote>
-<h1>Example 2:</h1>
-<blockquote>
+<h1 id="Example-2"><a href="#Example-2" class="headerlink" title="Example 2:"></a>Example 2:</h1><blockquote>
 <p>Input: 1-&gt;1-&gt;1-&gt;2-&gt;3</p>
 <p>Output: 2-&gt;3</p>
 </blockquote>
-<h1>思路</h1>
-<p>题意是给出一个有序链表， 删除所有的重复的元素，对重复元素不做保留。</p>
+<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>题意是给出一个有序链表， 删除所有的重复的元素，对重复元素不做保留。</p>
 <p>例子2 可以看到有头结点和之后元素重复的情况， 所有需要利用虚拟头结点；</p>
 <ul>
-<li>
-<ol>
+<li><ol>
 <li>pre指向虚拟头结点，pre.next 指向头结点，cur 指针从头结点进行遍历；</li>
 </ol>
 </li>
-<li>
-<ol start="2">
-<li>判断否存在多个相同值的结点，若有遍历到最后一个重复元素：</li>
+<li><ol start="2">
+<li>判断否存在多个相同值的结点，若有遍历到最后一个重复元素：<ul>
+<li>当pre.next  !&#x3D; cur时， 说明中间遍历的元素是重复的， 删除重复的元素</li>
+<li>pre.next  &#x3D;&#x3D; cur 时， 说明前后没有重复的元素， pre 与 cur 指针分别指向下一个元素</li>
+</ul>
+</li>
 </ol>
 </li>
-</ul>
-<pre><code>* 当pre.next  != cur时， 说明中间遍历的元素是重复的， 删除重复的元素
-* pre.next  == cur 时， 说明前后没有重复的元素， pre 与 cur 指针分别指向下一个元素
-</code></pre>
-<ul>
-<li>
-<ol start="3">
+<li><ol start="3">
 <li>重复 <strong>步骤 2.</strong> 继续遍历元素进行判断</li>
 </ol>
 </li>
 </ul>
-<h1>示意图</h1>
-<p>示意图如下：<br>
-<img src="/demo.jpg" alt="demo"></p>
-<h1>代码</h1>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">deleteDuplicates</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">dummyHead</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ListNode</span>(-<span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">    dummyHead.next = head;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">pre</span> <span class="operator">=</span> dummyHead;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">curr</span> <span class="operator">=</span> head;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(curr != <span class="literal">null</span>) &#123;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// 遍历重复的元素， 直到最后一个</span></span><br><span class="line">        <span class="keyword">while</span>(curr.next != <span class="literal">null</span> &amp;&amp; curr.val == curr.next.val) &#123;</span><br><span class="line">            curr = curr.next;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 两个结点不同， 继续遍历</span></span><br><span class="line">        <span class="keyword">if</span>(pre.next == curr) &#123;</span><br><span class="line">            pre = pre.next;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        	  <span class="comment">//删除重复的元素</span></span><br><span class="line">            pre.next = curr.next;</span><br><span class="line">        &#125;</span><br><span class="line">        curr = curr.next;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> dummyHead.next;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="示意图"><a href="#示意图" class="headerlink" title="示意图"></a>示意图</h1><p>示意图如下：<br><img src="/demo.jpg" alt="demo"></p>
+<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> ListNode <span class="title function_">deleteDuplicates</span><span class="params">(ListNode head)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">dummyHead</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ListNode</span>(-<span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">    dummyHead.next = head;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">pre</span> <span class="operator">=</span> dummyHead;</span><br><span class="line">    <span class="type">ListNode</span> <span class="variable">curr</span> <span class="operator">=</span> head;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span>(curr != <span class="literal">null</span>) &#123;</span><br><span class="line">    </span><br><span class="line">        <span class="comment">// 遍历重复的元素， 直到最后一个</span></span><br><span class="line">        <span class="keyword">while</span>(curr.next != <span class="literal">null</span> &amp;&amp; curr.val == curr.next.val) &#123;</span><br><span class="line">            curr = curr.next;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 两个结点不同， 继续遍历</span></span><br><span class="line">        <span class="keyword">if</span>(pre.next == curr) &#123;</span><br><span class="line">            pre = pre.next;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        	  <span class="comment">//删除重复的元素</span></span><br><span class="line">            pre.next = curr.next;</span><br><span class="line">        &#125;</span><br><span class="line">        curr = curr.next;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> dummyHead.next;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -363,7 +354,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Example 1:</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">Example 2:</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">思路</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">示意图</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">代码</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Example-1"><span class="toc-number">1.</span> <span class="toc-text">Example 1:</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Example-2"><span class="toc-number">2.</span> <span class="toc-text">Example 2:</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">思路</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A4%BA%E6%84%8F%E5%9B%BE"><span class="toc-number">4.</span> <span class="toc-text">示意图</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81"><span class="toc-number">5.</span> <span class="toc-text">代码</span></a></li></ol>
         
     </div>
     <style>

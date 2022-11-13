@@ -309,8 +309,9 @@
           
         <p>MySQL 查询过程一共分几步？</p>
 <span id="more"></span>
-<h1>MySQL 查询基础</h1>
-<p>查询过程分为以下五步：</p>
+
+
+<h1 id="MySQL-查询基础"><a href="#MySQL-查询基础" class="headerlink" title="MySQL 查询基础"></a>MySQL 查询基础</h1><p>查询过程分为以下五步：</p>
 <ol>
 <li>客户端发送查询指令给服务器</li>
 <li>服务器先查询缓存， 如果命中缓存立刻返回缓存中的结果。否则下一阶段</li>
@@ -319,16 +320,11 @@
 <li>将查询结果返回给客户端</li>
 </ol>
 <p><img src="/query_path.jpeg" alt="查询执行路径"></p>
-<h2 id="客户端-服务端间的通信协议">客户端/服务端间的通信协议</h2>
-<p>客户端与服务端之间是“半双工”， 一端发送数据时，另一端只能接收。 一般来说服务端返回的数据很大， 客户端完整的接收数据需要花费很长的时间， 所以必要的时候需要对查询增加 LIMIT 限制。</p>
-<h2 id="查询缓存">查询缓存</h2>
-<p>在解析 sql 语句之前， 如果缓存是打开的， MySQL 会优先检查是否命中缓存中的数据， 如果命中了数据， 返回结果前还要验证一次用户权限， 权限没有问题会直接返回缓存中查得的数据。</p>
-<h2 id="查询优化处理">查询优化处理</h2>
-<p>查询优化包含多个子阶段： 解析 sql， 预处理， 优化 sql 执行计划。</p>
-<h3 id="语法解析器与预处理">语法解析器与预处理</h3>
-<p>MySQL 通过关键字对 SQL 语句进行解析， 生成一颗解析树。在这一步解析器将验证关键字是否正确， 关键字的顺序是否正确， 还会验证引号是否前后正确匹配。</p>
-<h3 id="查询优化器">查询优化器</h3>
-<p>此时语法树是合法的，优化器会将其转化成执行计划， 一条语句可能由多种执行方式，优化器的作用就是找到其中最好的的执行计划。 查询优化可以简单分为两种：静态优化和动态优化。 静态优化对解析树进行分析，例如通过简单的代数变换将 WHERE 条件转换成另一种形式，第一次完成后一直有效， 不受参数变化的影响； 动态优化与查询的上下文有关， 比如 WHERE 条件的取值、索引中条目对应的数据行等， 每次查询都需重新评估。</p>
+<h2 id="客户端-x2F-服务端间的通信协议"><a href="#客户端-x2F-服务端间的通信协议" class="headerlink" title="客户端&#x2F;服务端间的通信协议"></a>客户端&#x2F;服务端间的通信协议</h2><p>客户端与服务端之间是“半双工”， 一端发送数据时，另一端只能接收。 一般来说服务端返回的数据很大， 客户端完整的接收数据需要花费很长的时间， 所以必要的时候需要对查询增加 LIMIT 限制。</p>
+<h2 id="查询缓存"><a href="#查询缓存" class="headerlink" title="查询缓存"></a>查询缓存</h2><p>在解析 sql 语句之前， 如果缓存是打开的， MySQL 会优先检查是否命中缓存中的数据， 如果命中了数据， 返回结果前还要验证一次用户权限， 权限没有问题会直接返回缓存中查得的数据。</p>
+<h2 id="查询优化处理"><a href="#查询优化处理" class="headerlink" title="查询优化处理"></a>查询优化处理</h2><p>查询优化包含多个子阶段： 解析 sql， 预处理， 优化 sql 执行计划。</p>
+<h3 id="语法解析器与预处理"><a href="#语法解析器与预处理" class="headerlink" title="语法解析器与预处理"></a>语法解析器与预处理</h3><p>MySQL 通过关键字对 SQL 语句进行解析， 生成一颗解析树。在这一步解析器将验证关键字是否正确， 关键字的顺序是否正确， 还会验证引号是否前后正确匹配。</p>
+<h3 id="查询优化器"><a href="#查询优化器" class="headerlink" title="查询优化器"></a>查询优化器</h3><p>此时语法树是合法的，优化器会将其转化成执行计划， 一条语句可能由多种执行方式，优化器的作用就是找到其中最好的的执行计划。 查询优化可以简单分为两种：静态优化和动态优化。 静态优化对解析树进行分析，例如通过简单的代数变换将 WHERE 条件转换成另一种形式，第一次完成后一直有效， 不受参数变化的影响； 动态优化与查询的上下文有关， 比如 WHERE 条件的取值、索引中条目对应的数据行等， 每次查询都需重新评估。</p>
 <p>以下是 MySQL 可以优化的类型：</p>
 <ul>
 <li>重新定义关联表的顺序</li>
@@ -342,55 +338,38 @@
 <li>等值传播</li>
 <li>列表 IN() 的比较</li>
 </ul>
-<h3 id="数据和索引的统计信息">数据和索引的统计信息</h3>
-<p>大多数情况下，数据和索引的统计信息都在存储引擎层维护。</p>
-<h3 id="关联查询">关联查询</h3>
-<p>MySQL 关联 查询时先将子查询的结果放到一个临时表中， 将临时表也当做一个普通表对待。MySQL 先将一系列的查询结果放到一个临时表中，然后再嵌套循环到下一个表中寻找匹配的行， 直到找到所有的匹配行为止。</p>
-<h3 id="执行计划">执行计划</h3>
-<p>MySQL 的执行计划从一个表开始嵌套循环、回溯完成所有表的关联。</p>
-<p><img src="join.jpg" alt="多表关联"></p>
-<h3 id="关联查询优化器">关联查询优化器</h3>
-<p>关联优化查询器通过评估不同顺序的成本选择一个代价最小的关联顺序。</p>
-<h3 id="排序优化">排序优化</h3>
-<p>当不能只有索引生成的排序结果时， MySQL 需要自己进行排序。如果数据量小可以在内存中排序， 数据量大时在磁盘中排序， 两种情况统称为文件排序(file sort)， 有以下2种排序规则：</p>
+<h3 id="数据和索引的统计信息"><a href="#数据和索引的统计信息" class="headerlink" title="数据和索引的统计信息"></a>数据和索引的统计信息</h3><p>大多数情况下，数据和索引的统计信息都在存储引擎层维护。</p>
+<h3 id="关联查询"><a href="#关联查询" class="headerlink" title="关联查询"></a>关联查询</h3><p>MySQL 关联 查询时先将子查询的结果放到一个临时表中， 将临时表也当做一个普通表对待。MySQL 先将一系列的查询结果放到一个临时表中，然后再嵌套循环到下一个表中寻找匹配的行， 直到找到所有的匹配行为止。</p>
+<h3 id="执行计划"><a href="#执行计划" class="headerlink" title="执行计划"></a>执行计划</h3><p>MySQL 的执行计划从一个表开始嵌套循环、回溯完成所有表的关联。</p>
+<p><img src="/2020/03/08/mysql/note6-query-optimize/join.jpg" alt="多表关联"></p>
+<h3 id="关联查询优化器"><a href="#关联查询优化器" class="headerlink" title="关联查询优化器"></a>关联查询优化器</h3><p>关联优化查询器通过评估不同顺序的成本选择一个代价最小的关联顺序。</p>
+<h3 id="排序优化"><a href="#排序优化" class="headerlink" title="排序优化"></a>排序优化</h3><p>当不能只有索引生成的排序结果时， MySQL 需要自己进行排序。如果数据量小可以在内存中排序， 数据量大时在磁盘中排序， 两种情况统称为文件排序(file sort)， 有以下2种排序规则：</p>
 <ul>
 <li>两次传输排序： 需要读取两次数据表， 成本高， 旧版本使用</li>
 <li>单次传输排序： 先从数据表读取所有列， 再排序， 直接返回排序结果</li>
 </ul>
-<p>file sort 带来的问题是有可能排序产生的临时表比磁盘的原有文件还要大， 所以查看EXPLAIN 时如果出现 &quot;Using temporary; Using filesort&quot;时需要留意。</p>
-<h2 id="查询执行引擎">查询执行引擎</h2>
-<p>在解析和优化阶段， MySQL 将生成查询对应的执行计划。 查询过程中每个表对应一个 handler， 存储引擎提供查询的接口供优化器使用， 这些接口包含获取表的相关信息， 表的列名、索引统计信息等。</p>
-<h2 id="返回结果给客户端">返回结果给客户端</h2>
-<p>如果查询的结果可以被缓存， MySQL 会将查得的结果缓存起来。</p>
+<p>file sort 带来的问题是有可能排序产生的临时表比磁盘的原有文件还要大， 所以查看EXPLAIN 时如果出现 “Using temporary; Using filesort”时需要留意。</p>
+<h2 id="查询执行引擎"><a href="#查询执行引擎" class="headerlink" title="查询执行引擎"></a>查询执行引擎</h2><p>在解析和优化阶段， MySQL 将生成查询对应的执行计划。 查询过程中每个表对应一个 handler， 存储引擎提供查询的接口供优化器使用， 这些接口包含获取表的相关信息， 表的列名、索引统计信息等。</p>
+<h2 id="返回结果给客户端"><a href="#返回结果给客户端" class="headerlink" title="返回结果给客户端"></a>返回结果给客户端</h2><p>如果查询的结果可以被缓存， MySQL 会将查得的结果缓存起来。</p>
 <p>MySQL 返回结果的过程并不是一次将所有结果返回， 而是一个逐步的过程， 以关联表为例， 处理器在处理完最后一个关联表生成第一条结果时就开始向客户端返回数据了。</p>
 <p>这样服务单无需存储太多的结果，也不会因为返回太多结果而占销毁太多内存。</p>
-<h1>要想查询速度快不要做哪些</h1>
-<h2 id="查询了不需要的数据">查询了不需要的数据</h2>
-<h3 id="查询了不需要的数据-2">查询了不需要的数据</h3>
-<p>可以在查询条件中新增 LIMIT ， 返回自己需要的条数。</p>
-<h3 id="多表关联时返回全部的列">多表关联时返回全部的列</h3>
-<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> A</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> B </span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> C</span><br><span class="line"><span class="keyword">WHERE</span> XXX;</span><br></pre></td></tr></table></figure>
+<h1 id="要想查询速度快不要做哪些"><a href="#要想查询速度快不要做哪些" class="headerlink" title="要想查询速度快不要做哪些"></a>要想查询速度快不要做哪些</h1><h2 id="查询了不需要的数据"><a href="#查询了不需要的数据" class="headerlink" title="查询了不需要的数据"></a>查询了不需要的数据</h2><h3 id="查询了不需要的数据-1"><a href="#查询了不需要的数据-1" class="headerlink" title="查询了不需要的数据"></a>查询了不需要的数据</h3><p>可以在查询条件中新增 LIMIT ， 返回自己需要的条数。</p>
+<h3 id="多表关联时返回全部的列"><a href="#多表关联时返回全部的列" class="headerlink" title="多表关联时返回全部的列"></a>多表关联时返回全部的列</h3><figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> A</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> B </span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> C</span><br><span class="line"><span class="keyword">WHERE</span> XXX;</span><br></pre></td></tr></table></figure>
 <p>这样的操作会返回 A、B、C 的全部列。 正确的做法是只取需要的列：</p>
 <figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> A.* <span class="keyword">FROM</span> A</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> B </span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> C</span><br><span class="line"><span class="keyword">WHERE</span> XXX;</span><br></pre></td></tr></table></figure>
-<h3 id="总是取出全部列">总是取出全部列</h3>
-<p>禁止使用 SELECT * 。 使用 SELECT * 查询会带来额外的 I/O、内存和 CPU 的消耗。</p>
-<h3 id="重复查询相同的数据">重复查询相同的数据</h3>
-<p>如果重复执行相同的查询， 并总是返回完全相同的数据。 对这些很少发生变化的数据， 将它缓存起来。</p>
-<h2 id="是否扫描了额外的记录">是否扫描了额外的记录</h2>
-<p>衡量指标：</p>
+
+<h3 id="总是取出全部列"><a href="#总是取出全部列" class="headerlink" title="总是取出全部列"></a>总是取出全部列</h3><p>禁止使用 SELECT * 。 使用 SELECT * 查询会带来额外的 I&#x2F;O、内存和 CPU 的消耗。</p>
+<h3 id="重复查询相同的数据"><a href="#重复查询相同的数据" class="headerlink" title="重复查询相同的数据"></a>重复查询相同的数据</h3><p>如果重复执行相同的查询， 并总是返回完全相同的数据。 对这些很少发生变化的数据， 将它缓存起来。</p>
+<h2 id="是否扫描了额外的记录"><a href="#是否扫描了额外的记录" class="headerlink" title="是否扫描了额外的记录"></a>是否扫描了额外的记录</h2><p>衡量指标：</p>
 <ul>
-<li>
-<p>响应时间： 服务时间 + 阻塞时间</p>
-<p>服务时间指的是数据库处理查询花费的时间；<br>
-阻塞时间指的是服务器在等待资源过程中花的时间， I/O 操作、行锁等</p>
+<li><p>响应时间： 服务时间 + 阻塞时间</p>
+<p>  服务时间指的是数据库处理查询花费的时间；<br>  阻塞时间指的是服务器在等待资源过程中花的时间， I&#x2F;O 操作、行锁等</p>
 </li>
-<li>
-<p>扫描的行数</p>
-<p>理想情况下扫描的行数应该和返回的行数相同。</p>
+<li><p>扫描的行数</p>
+<p>  理想情况下扫描的行数应该和返回的行数相同。</p>
 </li>
-<li>
-<p>扫描的类型</p>
-<p>访问的类型有： 全表扫描(ALL)、索引扫描(ref)、范围扫描(range)、唯一索引(unique)、常数引用(const)。 速度依次由慢到快</p>
+<li><p>扫描的类型</p>
+<p>  访问的类型有： 全表扫描(ALL)、索引扫描(ref)、范围扫描(range)、唯一索引(unique)、常数引用(const)。 速度依次由慢到快</p>
 </li>
 </ul>
 <p>MySQL 会在以下三种情况使用 WHERE 条件：</p>
@@ -405,16 +384,13 @@
 <li>改变库表结果， 使用单独的汇总表；</li>
 <li>重写复杂的查询， 让 MySQL 更优地处理。</li>
 </ul>
-<h1>重构查询方式以提升查询效率</h1>
-<p>将查询进行转换， 可以使得返回同样的结果，但是速度更快。</p>
-<h2 id="使用一个复杂查询还是多个简单查询">使用一个复杂查询还是多个简单查询</h2>
-<p>MySQL 的连接和端口的开销很小， 所以对 MySQL 来说网络通信、查询解析和优化的成本比以前小了很多。 有必要时将浮躁查询分解成多个查询。</p>
-<h2 id="切分查询">切分查询</h2>
-<p>将一个大查询切分成小查询， 每个小查询只完成一小部分， 返回一小部分结果。</p>
+<h1 id="重构查询方式以提升查询效率"><a href="#重构查询方式以提升查询效率" class="headerlink" title="重构查询方式以提升查询效率"></a>重构查询方式以提升查询效率</h1><p>将查询进行转换， 可以使得返回同样的结果，但是速度更快。</p>
+<h2 id="使用一个复杂查询还是多个简单查询"><a href="#使用一个复杂查询还是多个简单查询" class="headerlink" title="使用一个复杂查询还是多个简单查询"></a>使用一个复杂查询还是多个简单查询</h2><p>MySQL 的连接和端口的开销很小， 所以对 MySQL 来说网络通信、查询解析和优化的成本比以前小了很多。 有必要时将浮躁查询分解成多个查询。</p>
+<h2 id="切分查询"><a href="#切分查询" class="headerlink" title="切分查询"></a>切分查询</h2><p>将一个大查询切分成小查询， 每个小查询只完成一小部分， 返回一小部分结果。</p>
 <p>批量删除旧数据， 每次限制 10000 条数据。</p>
-<h2 id="拆分关联查询">拆分关联查询</h2>
-<p>对关联查询进行分解， 将分解得到的数据在应用层或者说在内存中进行处理。</p>
+<h2 id="拆分关联查询"><a href="#拆分关联查询" class="headerlink" title="拆分关联查询"></a>拆分关联查询</h2><p>对关联查询进行分解， 将分解得到的数据在应用层或者说在内存中进行处理。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM tag</span><br><span class="line">    JOIN tag_post on tag_post.tag_id = tag.id</span><br><span class="line">    JOIN post on tag_post.post_id = post.id</span><br><span class="line">where tag.tag = <span class="string">&#x27;mysql&#x27;</span>;</span><br><span class="line"></span><br><span class="line">-- 分解成如下：</span><br><span class="line">SELECT * FROM tag <span class="type">WHERE</span> <span class="variable">tag</span> <span class="operator">=</span> <span class="string">&#x27;mysql&#x27;</span>;</span><br><span class="line">SELECT * FROM tag_post WHERE tag_id= <span class="number">1234</span>;</span><br><span class="line">SELECT * FROM post WHERE post_id <span class="title function_">in</span> <span class="params">(<span class="number">123</span>, <span class="number">456</span>, <span class="number">789</span>, 0992)</span><span class="string">&#x27;;</span></span><br></pre></td></tr></table></figure>
+
 <p>这样做的好处是：</p>
 <ul>
 <li>让缓存效率更高。分解后的语句查询的结果更容易被缓存， 而联表查询的零时表缓存的命中率并不高？（因为关联的一张表发生变化就会导致缓存失效）；</li>
@@ -437,7 +413,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">MySQL 查询基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.1.</span> <span class="toc-text">客户端&#x2F;服务端间的通信协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.</span> <span class="toc-text">查询缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%A4%84%E7%90%86"><span class="toc-number">1.3.</span> <span class="toc-text">查询优化处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E8%A7%A3%E6%9E%90%E5%99%A8%E4%B8%8E%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-number">1.3.1.</span> <span class="toc-text">语法解析器与预处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-number">1.3.2.</span> <span class="toc-text">查询优化器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%92%8C%E7%B4%A2%E5%BC%95%E7%9A%84%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.3.</span> <span class="toc-text">数据和索引的统计信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.3.4.</span> <span class="toc-text">关联查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="toc-number">1.3.5.</span> <span class="toc-text">执行计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-number">1.3.6.</span> <span class="toc-text">关联查询优化器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E4%BC%98%E5%8C%96"><span class="toc-number">1.3.7.</span> <span class="toc-text">排序优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="toc-number">1.4.</span> <span class="toc-text">查询执行引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%9C%E7%BB%99%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.5.</span> <span class="toc-text">返回结果给客户端</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">要想查询速度快不要做哪些</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BA%86%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">2.1.</span> <span class="toc-text">查询了不需要的数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BA%86%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE-2"><span class="toc-number">2.1.1.</span> <span class="toc-text">查询了不需要的数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E8%A1%A8%E5%85%B3%E8%81%94%E6%97%B6%E8%BF%94%E5%9B%9E%E5%85%A8%E9%83%A8%E7%9A%84%E5%88%97"><span class="toc-number">2.1.2.</span> <span class="toc-text">多表关联时返回全部的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E6%98%AF%E5%8F%96%E5%87%BA%E5%85%A8%E9%83%A8%E5%88%97"><span class="toc-number">2.1.3.</span> <span class="toc-text">总是取出全部列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%A4%8D%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%90%8C%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">2.1.4.</span> <span class="toc-text">重复查询相同的数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%AF%E5%90%A6%E6%89%AB%E6%8F%8F%E4%BA%86%E9%A2%9D%E5%A4%96%E7%9A%84%E8%AE%B0%E5%BD%95"><span class="toc-number">2.2.</span> <span class="toc-text">是否扫描了额外的记录</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">重构查询方式以提升查询效率</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E4%B8%80%E4%B8%AA%E5%A4%8D%E6%9D%82%E6%9F%A5%E8%AF%A2%E8%BF%98%E6%98%AF%E5%A4%9A%E4%B8%AA%E7%AE%80%E5%8D%95%E6%9F%A5%E8%AF%A2"><span class="toc-number">3.1.</span> <span class="toc-text">使用一个复杂查询还是多个简单查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%87%E5%88%86%E6%9F%A5%E8%AF%A2"><span class="toc-number">3.2.</span> <span class="toc-text">切分查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%86%E5%88%86%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="toc-number">3.3.</span> <span class="toc-text">拆分关联查询</span></a></li></ol></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL-%E6%9F%A5%E8%AF%A2%E5%9F%BA%E7%A1%80"><span class="toc-number">1.</span> <span class="toc-text">MySQL 查询基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF-x2F-%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%97%B4%E7%9A%84%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.1.</span> <span class="toc-text">客户端&#x2F;服务端间的通信协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-number">1.2.</span> <span class="toc-text">查询缓存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%A4%84%E7%90%86"><span class="toc-number">1.3.</span> <span class="toc-text">查询优化处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E8%A7%A3%E6%9E%90%E5%99%A8%E4%B8%8E%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-number">1.3.1.</span> <span class="toc-text">语法解析器与预处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-number">1.3.2.</span> <span class="toc-text">查询优化器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%92%8C%E7%B4%A2%E5%BC%95%E7%9A%84%E7%BB%9F%E8%AE%A1%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.3.</span> <span class="toc-text">数据和索引的统计信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.3.4.</span> <span class="toc-text">关联查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="toc-number">1.3.5.</span> <span class="toc-text">执行计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%99%A8"><span class="toc-number">1.3.6.</span> <span class="toc-text">关联查询优化器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E4%BC%98%E5%8C%96"><span class="toc-number">1.3.7.</span> <span class="toc-text">排序优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E"><span class="toc-number">1.4.</span> <span class="toc-text">查询执行引擎</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E7%BB%93%E6%9E%9C%E7%BB%99%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">1.5.</span> <span class="toc-text">返回结果给客户端</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A6%81%E6%83%B3%E6%9F%A5%E8%AF%A2%E9%80%9F%E5%BA%A6%E5%BF%AB%E4%B8%8D%E8%A6%81%E5%81%9A%E5%93%AA%E4%BA%9B"><span class="toc-number">2.</span> <span class="toc-text">要想查询速度快不要做哪些</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BA%86%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">2.1.</span> <span class="toc-text">查询了不需要的数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BA%86%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE-1"><span class="toc-number">2.1.1.</span> <span class="toc-text">查询了不需要的数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%9A%E8%A1%A8%E5%85%B3%E8%81%94%E6%97%B6%E8%BF%94%E5%9B%9E%E5%85%A8%E9%83%A8%E7%9A%84%E5%88%97"><span class="toc-number">2.1.2.</span> <span class="toc-text">多表关联时返回全部的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E6%98%AF%E5%8F%96%E5%87%BA%E5%85%A8%E9%83%A8%E5%88%97"><span class="toc-number">2.1.3.</span> <span class="toc-text">总是取出全部列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%A4%8D%E6%9F%A5%E8%AF%A2%E7%9B%B8%E5%90%8C%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">2.1.4.</span> <span class="toc-text">重复查询相同的数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%98%AF%E5%90%A6%E6%89%AB%E6%8F%8F%E4%BA%86%E9%A2%9D%E5%A4%96%E7%9A%84%E8%AE%B0%E5%BD%95"><span class="toc-number">2.2.</span> <span class="toc-text">是否扫描了额外的记录</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%87%8D%E6%9E%84%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E4%BB%A5%E6%8F%90%E5%8D%87%E6%9F%A5%E8%AF%A2%E6%95%88%E7%8E%87"><span class="toc-number">3.</span> <span class="toc-text">重构查询方式以提升查询效率</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E4%B8%80%E4%B8%AA%E5%A4%8D%E6%9D%82%E6%9F%A5%E8%AF%A2%E8%BF%98%E6%98%AF%E5%A4%9A%E4%B8%AA%E7%AE%80%E5%8D%95%E6%9F%A5%E8%AF%A2"><span class="toc-number">3.1.</span> <span class="toc-text">使用一个复杂查询还是多个简单查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%87%E5%88%86%E6%9F%A5%E8%AF%A2"><span class="toc-number">3.2.</span> <span class="toc-text">切分查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%86%E5%88%86%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="toc-number">3.3.</span> <span class="toc-text">拆分关联查询</span></a></li></ol></li></ol>
         
     </div>
     <style>

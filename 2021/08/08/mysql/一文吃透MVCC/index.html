@@ -310,61 +310,55 @@
           
         <p>MVCC 到底是个什么东西？为什么 RC 就不可重复读了！</p>
 <span id="more"></span>
-<h1>一文吃透 MVCC</h1>
-<h1>案例</h1>
-<p>在了解 MVCC 机制前，先看以下的案例</p>
+
+<h1 id="一文吃透-MVCC"><a href="#一文吃透-MVCC" class="headerlink" title="一文吃透 MVCC"></a>一文吃透 MVCC</h1><h1 id="案例"><a href="#案例" class="headerlink" title="案例"></a>案例</h1><p>在了解 MVCC 机制前，先看以下的案例</p>
 <p>数据库表 test 有以下数据</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from users;</span><br><span class="line">+----+--------+-----+</span><br><span class="line">| id | name   | age |</span><br><span class="line">+----+--------+-----+</span><br><span class="line">|  <span class="number">1</span> | 小兰   | <span class="number">18</span>  |</span><br><span class="line">|  <span class="number">7</span> | 小明   | <span class="number">19</span>  |</span><br><span class="line">|  <span class="number">8</span> | 小东   | <span class="number">20</span>  |</span><br><span class="line">| <span class="number">12</span> | 张三   | <span class="number">21</span>  |</span><br><span class="line">+----+--------+-----+</span><br></pre></td></tr></table></figure>
+
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">---事务 1</span></span><br><span class="line"><span class="keyword">begin</span>;</span><br><span class="line"><span class="keyword">update</span> users <span class="keyword">set</span> age <span class="operator">=</span> <span class="string">&#x27;20&#x27;</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">update</span> users <span class="keyword">set</span> age <span class="operator">=</span> <span class="string">&#x27;21&#x27;</span> <span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"><span class="keyword">commit</span>;</span><br></pre></td></tr></table></figure>
+
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">---事务 2</span></span><br><span class="line"><span class="keyword">begin</span>;</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test;</span><br></pre></td></tr></table></figure>
+
 <p>在 RR 级别下同时开启事务 1 与事务 2， 先执行事务 1 的 update 的语句并进行事务提交， 事务 2 查询会得到</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">+----+--------+-----+</span><br><span class="line">| id | name   | age |</span><br><span class="line">+----+--------+-----+</span><br><span class="line">|  <span class="number">1</span> | 小兰   | <span class="number">18</span>  |</span><br><span class="line">|  <span class="number">7</span> | 小明   | <span class="number">19</span>  |</span><br><span class="line">|  <span class="number">8</span> | 小东   | <span class="number">20</span>  |</span><br><span class="line">| <span class="number">12</span> | 张三   | <span class="number">21</span>  |</span><br><span class="line">+----+--------+-----+</span><br></pre></td></tr></table></figure>
+
 <p>这是因为 RR 级别下不可重复读的特性使得事务在查询时始终都得到相同的结果， 再往深研究其实是 MVCC 机制发挥作用。</p>
 <p>同样的语句在 RC 级别下，事务 1 执行更新语句commit后，事务 2 的查询结果是：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">---事务 <span class="number">1</span> 更新前</span><br><span class="line">mysql&gt; select * from users;</span><br><span class="line">+----+--------+-----+</span><br><span class="line">| id | name   | age |</span><br><span class="line">+----+--------+-----+</span><br><span class="line">|  <span class="number">1</span> | 小兰   | <span class="number">18</span>  |</span><br><span class="line">|  <span class="number">7</span> | 小明   | <span class="number">19</span>  |</span><br><span class="line">|  <span class="number">8</span> | 小东   | <span class="number">20</span>  |</span><br><span class="line">| <span class="number">12</span> | 张三   | <span class="number">21</span>  |</span><br><span class="line">+----+--------+-----+</span><br><span class="line">---事务 <span class="number">1</span> 更新后，事务<span class="number">2</span> 进行查询</span><br><span class="line">mysql&gt; select * from users;</span><br><span class="line">+----+--------+-----+</span><br><span class="line">| id | name   | age |</span><br><span class="line">+----+--------+-----+</span><br><span class="line">|  <span class="number">1</span> | 小兰   | <span class="number">21</span>  |</span><br><span class="line">|  <span class="number">7</span> | 小明   | <span class="number">19</span>  |</span><br><span class="line">|  <span class="number">8</span> | 小东   | <span class="number">20</span>  |</span><br><span class="line">| <span class="number">12</span> | 张三   | <span class="number">21</span>  |</span><br><span class="line">+----+--------+-----+</span><br></pre></td></tr></table></figure>
+
 <p>究其原因在与 RR 与 RC 级别下 MVCC的不同实现策略导致查询的结果不同</p>
-<h1>MVCC</h1>
-<p><strong>多版本并发控制</strong>技术的英文全称是 <strong>Multiversion Concurrency Control</strong>，简称 <strong>MVCC</strong>。</p>
+<h1 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h1><p><strong>多版本并发控制</strong>技术的英文全称是 <strong>Multiversion Concurrency Control</strong>，简称 <strong>MVCC</strong>。</p>
 <p><strong>MVVC</strong> 是通过保存数据在某个时间点的快照来实现并发控制的。</p>
-<h2 id="MVCC解决了哪些问题">MVCC解决了哪些问题</h2>
-<p>提升了查询性能，降低了死锁概率， 只在写数据时加锁</p>
+<h2 id="MVCC解决了哪些问题"><a href="#MVCC解决了哪些问题" class="headerlink" title="MVCC解决了哪些问题"></a>MVCC解决了哪些问题</h2><p>提升了查询性能，降低了死锁概率， 只在写数据时加锁</p>
 <p>解决了读写并发问题， 读写互不阻塞</p>
 <p>解决一致性读问题</p>
-<h2 id="MVCC-是如何工作的">MVCC 是如何工作的</h2>
-<h3 id="事务版本号">事务版本号</h3>
-<p>每开启一个事务， 可以获得一个事务版本号，事务 ID 递增，通过事务 ID 可以知晓事务的执行时间顺序</p>
-<h3 id="行隐藏列">行隐藏列</h3>
-<ul>
+<h2 id="MVCC-是如何工作的"><a href="#MVCC-是如何工作的" class="headerlink" title="MVCC 是如何工作的"></a>MVCC 是如何工作的</h2><h3 id="事务版本号"><a href="#事务版本号" class="headerlink" title="事务版本号"></a>事务版本号</h3><p>每开启一个事务， 可以获得一个事务版本号，事务 ID 递增，通过事务 ID 可以知晓事务的执行时间顺序</p>
+<h3 id="行隐藏列"><a href="#行隐藏列" class="headerlink" title="行隐藏列"></a>行隐藏列</h3><ul>
 <li>DB_ROW_ID:6-byte，隐藏的行 ID，用来生成默认聚簇索引。如果我们创建数据表的时候没有指定聚簇索引，这时 InnoDB 就会用这个隐藏 ID 来创建聚集索引。采用聚簇索引的方式可以提升数据的查找效率。</li>
 <li>DB_ROLL_PTR:7-byte，回滚指针，也就是指向这个记录的 Undo Log 信息。</li>
 <li>DB_TRX_ID:6-byte，操作这个数据的事务 ID，也就是最后一个对该数据进行插入或更新的事务 ID。</li>
 </ul>
-<p><img src="undolog.png" alt="undolog.png"></p>
-<h3 id="undo-log">undo log</h3>
-<p>InnoDB 将行记录快照保存在了 Undo Log 里，我们可以在回滚段中找到它们，如下图所示：</p>
+<p><img src="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/undolog.png" alt="undolog.png"></p>
+<h3 id="undo-log"><a href="#undo-log" class="headerlink" title="undo log"></a>undo log</h3><p>InnoDB 将行记录快照保存在了 Undo Log 里，我们可以在回滚段中找到它们，如下图所示：</p>
 <p>由版本链组成的视图</p>
-<p><img src="mvcc.svg" alt="mvcc.svg"></p>
-<h3 id="READ-VIEW">READ VIEW</h3>
-<p>read view 是在 SQL 语句执行之前创建的，通过 <code>read view</code> 可以将所有事务分为三部分：<code>trx_ids</code>,<code>min_trx_id</code>,<code>max_trx_id</code>，其中：</p>
+<p><img src="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/mvcc.svg" alt="mvcc.svg"></p>
+<h3 id="READ-VIEW"><a href="#READ-VIEW" class="headerlink" title="READ VIEW"></a>READ VIEW</h3><p>read view 是在 SQL 语句执行之前创建的，通过 <code>read view</code> 可以将所有事务分为三部分：<code>trx_ids</code>,<code>min_trx_id</code>,<code>max_trx_id</code>，其中：</p>
 <ul>
 <li><code>trx_ids</code> - 创建 <code>read view</code> 时 <strong>尚未提交</strong> 的活跃事务列表</li>
 <li><code>max_trx_id</code> - 创建 <code>read view</code> 时 <strong>尚未提交</strong> 的活跃事务列表中的 <strong>最大</strong> 的事务 ID</li>
 <li><code>low_trx_id</code> - 创建 <code>read view</code> 时 <strong>尚未提交</strong> 的活跃事务列表中的 <strong>最小</strong> 的事务 ID</li>
 <li><code>creator_trx_id</code>：表示生成该ReadView的事务的事务id</li>
 </ul>
-<h3 id="readview-是如何工作">readview 是如何工作</h3>
-<ul>
-<li><code>trx_id</code> = <code>creator_trx_id</code>, 表明是当前事务在访问自身修改过的记录，使用该版本可以被当前事务访问</li>
+<h3 id="readview-是如何工作"><a href="#readview-是如何工作" class="headerlink" title="readview 是如何工作"></a>readview 是如何工作</h3><ul>
+<li><code>trx_id</code> &#x3D; <code>creator_trx_id</code>, 表明是当前事务在访问自身修改过的记录，使用该版本可以被当前事务访问</li>
 <li><code>trx_id &lt; min_trx_id</code> - 创建 <code>read view</code> 时已经提交了的事务，表明生成该版本的事务在当前事务生成ReadView前已经提交，所以该版本可以被当前事务访问。</li>
 <li><code>min_trx_id &lt;= trx_id &lt;= max_trx_id</code> , 需要判断当前trx_id是否是活跃的事务id，如果在，说明创建ReadView时生成该版本的事务还是活跃的，该版本不可以当前事务访问；如果不在，说明创建ReadView时生成该版本的事务已经被提交，该版本可以被当前事务访问</li>
 <li><code>trx_id &gt; max_trx_id</code> - 创建 <code>read view</code> 时还未创建的事务，表明事务是在readview 生成后才开启的，所以该版本对当前事务也是不可见的</li>
 </ul>
-<p><img src="readview.png" alt="readview.png"></p>
-<h3 id="RR-RC-创建视图时机">RR &amp; RC 创建视图时机</h3>
-<p>对于 RR 级别来说，就只能在事务开始之前创建 read view，在创建事务后提交的数据对于当前事务来说都是不可见的。</p>
+<p><img src="/2021/08/08/mysql/%E4%B8%80%E6%96%87%E5%90%83%E9%80%8FMVCC/readview.png" alt="readview.png"></p>
+<h3 id="RR-amp-RC-创建视图时机"><a href="#RR-amp-RC-创建视图时机" class="headerlink" title="RR &amp; RC 创建视图时机"></a>RR &amp; RC 创建视图时机</h3><p>对于 RR 级别来说，就只能在事务开始之前创建 read view，在创建事务后提交的数据对于当前事务来说都是不可见的。</p>
 <p>在 RC 隔离级别下，每个 SELECT 语句开始时，都会重新将当前系统中的所有的活跃事务拷贝到一个列表生成 ReadView。<em><strong>二者的区别就在于生成 ReadView 的时间点不同，一个是事务之后第一个 SELECT 语句开始、一个是事务中每条 SELECT 语句开始</strong></em>。</p>
-<h1>总结</h1>
-<p><code>RC</code>、<code>RR</code> 两种隔离级别的事务在执行普通的读操作时，通过访问版本链的方法，使得事务间的读写操作得以并发执行，从而提升系统性能。<code>RC</code>、<code>RR</code> 这两个隔离级别的一个很大不同就是生成 <code>ReadView</code> 的时间点不同，<code>RC</code> 在每一次 <code>SELECT</code> 语句前都会生成一个 <code>ReadView</code>，事务期间会更新，因此在其他事务提交前后所得到的 <code>trx_ids</code> 列表可能发生变化，使得先前不可见的版本后续又突然可见了。而 <code>RR</code> 只在事务的第一个 <code>SELECT</code> 语句时生成一个 <code>ReadView</code>，事务操作期间不更新。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><code>RC</code>、<code>RR</code> 两种隔离级别的事务在执行普通的读操作时，通过访问版本链的方法，使得事务间的读写操作得以并发执行，从而提升系统性能。<code>RC</code>、<code>RR</code> 这两个隔离级别的一个很大不同就是生成 <code>ReadView</code> 的时间点不同，<code>RC</code> 在每一次 <code>SELECT</code> 语句前都会生成一个 <code>ReadView</code>，事务期间会更新，因此在其他事务提交前后所得到的 <code>trx_ids</code> 列表可能发生变化，使得先前不可见的版本后续又突然可见了。而 <code>RR</code> 只在事务的第一个 <code>SELECT</code> 语句时生成一个 <code>ReadView</code>，事务操作期间不更新。</p>
 
       
     </div>
@@ -380,7 +374,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">一文吃透 MVCC</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">案例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC%E8%A7%A3%E5%86%B3%E4%BA%86%E5%93%AA%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">MVCC解决了哪些问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="toc-number">3.2.</span> <span class="toc-text">MVCC 是如何工作的</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E7%89%88%E6%9C%AC%E5%8F%B7"><span class="toc-number">3.2.1.</span> <span class="toc-text">事务版本号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%8C%E9%9A%90%E8%97%8F%E5%88%97"><span class="toc-number">3.2.2.</span> <span class="toc-text">行隐藏列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#undo-log"><span class="toc-number">3.2.3.</span> <span class="toc-text">undo log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#READ-VIEW"><span class="toc-number">3.2.4.</span> <span class="toc-text">READ VIEW</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#readview-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C"><span class="toc-number">3.2.5.</span> <span class="toc-text">readview 是如何工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RR-RC-%E5%88%9B%E5%BB%BA%E8%A7%86%E5%9B%BE%E6%97%B6%E6%9C%BA"><span class="toc-number">3.2.6.</span> <span class="toc-text">RR &amp; RC 创建视图时机</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E6%96%87%E5%90%83%E9%80%8F-MVCC"><span class="toc-number">1.</span> <span class="toc-text">一文吃透 MVCC</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B"><span class="toc-number">2.</span> <span class="toc-text">案例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MVCC"><span class="toc-number">3.</span> <span class="toc-text">MVCC</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC%E8%A7%A3%E5%86%B3%E4%BA%86%E5%93%AA%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">MVCC解决了哪些问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVCC-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84"><span class="toc-number">3.2.</span> <span class="toc-text">MVCC 是如何工作的</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E7%89%88%E6%9C%AC%E5%8F%B7"><span class="toc-number">3.2.1.</span> <span class="toc-text">事务版本号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%8C%E9%9A%90%E8%97%8F%E5%88%97"><span class="toc-number">3.2.2.</span> <span class="toc-text">行隐藏列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#undo-log"><span class="toc-number">3.2.3.</span> <span class="toc-text">undo log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#READ-VIEW"><span class="toc-number">3.2.4.</span> <span class="toc-text">READ VIEW</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#readview-%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C"><span class="toc-number">3.2.5.</span> <span class="toc-text">readview 是如何工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RR-amp-RC-%E5%88%9B%E5%BB%BA%E8%A7%86%E5%9B%BE%E6%97%B6%E6%9C%BA"><span class="toc-number">3.2.6.</span> <span class="toc-text">RR &amp; RC 创建视图时机</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
         
     </div>
     <style>

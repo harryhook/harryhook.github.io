@@ -308,52 +308,40 @@
           
         <p>抽象工厂相比于工厂方法模式的不同在于，一个抽象工厂可以创建多个不同的产品</p>
 <span id="more"></span>
-<h3 id="引申概念">引申概念</h3>
-<blockquote>
-<p><strong>产品等级结构</strong>: 产品的继承结构， 抽象类是键盘，子类就是hp键盘，罗技键盘，抽象的键盘与具体的键盘产品构成了一个产品等级，抽象键盘是父类，具体的键盘是子类<br>
-<strong>产品族</strong>: 产品族指的是同一个工厂生产的， 位于不同产品等级的一组产品， 例如hp生产的键盘、鼠标是同一产品族，而键盘位于键盘产品等级，鼠标位于鼠标产品等级中</p>
+
+<h3 id="引申概念"><a href="#引申概念" class="headerlink" title="引申概念"></a>引申概念</h3><blockquote>
+<p><strong>产品等级结构</strong>: 产品的继承结构， 抽象类是键盘，子类就是hp键盘，罗技键盘，抽象的键盘与具体的键盘产品构成了一个产品等级，抽象键盘是父类，具体的键盘是子类<br><strong>产品族</strong>: 产品族指的是同一个工厂生产的， 位于不同产品等级的一组产品， 例如hp生产的键盘、鼠标是同一产品族，而键盘位于键盘产品等级，鼠标位于鼠标产品等级中</p>
 </blockquote>
-<h3 id="抽象工厂结构">抽象工厂结构</h3>
-<p><strong>AbstractFactory</strong>: 抽象工厂<br>
-<strong>ContreteFactory</strong>: 具体工厂<br>
-<strong>AbstractProduct</strong>: 抽象产品<br>
-<strong>ContreteProduct</strong>: 具体产品</p>
-<h3 id="抽象工厂uml">抽象工厂uml</h3>
-<p><img src="/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82.jpg" alt="抽象工厂"></p>
-<h3 id="抽象工厂特点">抽象工厂特点</h3>
-<blockquote>
+<h3 id="抽象工厂结构"><a href="#抽象工厂结构" class="headerlink" title="抽象工厂结构"></a>抽象工厂结构</h3><p><strong>AbstractFactory</strong>: 抽象工厂<br><strong>ContreteFactory</strong>: 具体工厂<br><strong>AbstractProduct</strong>: 抽象产品<br><strong>ContreteProduct</strong>: 具体产品</p>
+<h3 id="抽象工厂uml"><a href="#抽象工厂uml" class="headerlink" title="抽象工厂uml"></a>抽象工厂uml</h3><p><img src="/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82.jpg" alt="抽象工厂"></p>
+<h3 id="抽象工厂特点"><a href="#抽象工厂特点" class="headerlink" title="抽象工厂特点"></a>抽象工厂特点</h3><blockquote>
 <p>抽象工厂模式与工厂方法模式最大的区别：而工厂方法每个工厂只能创建一类产品，抽象工厂中每个工厂可以创建多种产品；</p>
 </blockquote>
-<h3 id="抽象工厂解决的问题">抽象工厂解决的问题</h3>
-<blockquote>
+<h3 id="抽象工厂解决的问题"><a href="#抽象工厂解决的问题" class="headerlink" title="抽象工厂解决的问题"></a>抽象工厂解决的问题</h3><blockquote>
 <p>解决了每个工厂只能创建一类产品的问题-即解决了工厂模式的缺点， 当一个工厂中能生产多种产品等级的产品时，此时抽象工厂比工厂模式效率高</p>
 </blockquote>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">PcFactory</span> <span class="variable">dellFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DellFactory</span>();</span><br><span class="line"><span class="comment">// create dell product</span></span><br><span class="line"><span class="type">KeyBoard</span> <span class="variable">dellKeyBoard</span> <span class="operator">=</span> dellFactory.createKeyBoard();</span><br><span class="line"><span class="type">Mouse</span> <span class="variable">dellMouse</span> <span class="operator">=</span> dellFactory.createMouse();</span><br><span class="line"><span class="comment">// use</span></span><br><span class="line">dellKeyBoard.type();</span><br><span class="line">dellMouse.click();</span><br><span class="line"></span><br><span class="line"><span class="type">PcFactory</span> <span class="variable">hpFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HpFactory</span>();</span><br><span class="line"><span class="comment">// create hp product</span></span><br><span class="line"><span class="type">KeyBoard</span> <span class="variable">hpKeyBoard</span> <span class="operator">=</span> hpFactory.createKeyBoard();</span><br><span class="line"><span class="type">Mouse</span> <span class="variable">hpMouse</span> <span class="operator">=</span> hpFactory.createMouse();</span><br><span class="line"><span class="comment">// use</span></span><br><span class="line">hpKeyBoard.type();</span><br><span class="line">hpMouse.click();</span><br></pre></td></tr></table></figure>
-<h3 id="抽象工厂优点">抽象工厂优点</h3>
-<blockquote>
+<h3 id="抽象工厂优点"><a href="#抽象工厂优点" class="headerlink" title="抽象工厂优点"></a>抽象工厂优点</h3><blockquote>
 <ul>
 <li>降低耦合， 将具体产品的创建延迟到具体工厂的子类中去， 减少客户端与具体产品之间的依赖</li>
 <li>更符合开闭原则，需要新增具体的产品族和相应的工厂即可，无需修改原有的系统</li>
 <li>增加新的工厂和产品族很方便， 无需修改已有的系统，符合开闭原则</li>
 </ul>
 </blockquote>
-<h3 id="不足">不足</h3>
-<blockquote>
+<h3 id="不足"><a href="#不足" class="headerlink" title="不足"></a>不足</h3><blockquote>
 <ul>
 <li>违抽象工厂中已经确定了被创建的产品的组合，新增产品种类时， 需要修改抽象工厂的接口以及其所有子类， 带来不便</li>
 <li>开闭原则的倾斜性， 增加工厂和产品族容易， 增加新的产品等级结构麻烦</li>
 </ul>
 </blockquote>
-<h3 id="应用场景">应用场景</h3>
-<blockquote>
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><blockquote>
 <ul>
 <li>一个系统不依赖于产品实例如何被创建、组合等细节</li>
 <li>系统中有多个产品族，每次只使用其中一个产品族</li>
 <li>属于同一个产品族的产品在一起使用</li>
 </ul>
 </blockquote>
-<h3 id="具体应用">具体应用</h3>
-<blockquote>
+<h3 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h3><blockquote>
 <ul>
 <li>系统更换主题时， 界面的按钮、文本、背景等一起发生改变 深色模式下的按钮、文本、背景属于一个产品族， 抽象的按钮与具体的按钮构成一个产品等级</li>
 <li>公司在采购时， 采购了DELL公司的电脑、鼠标、键盘， 等下个季度采购HP公司的产品</li>

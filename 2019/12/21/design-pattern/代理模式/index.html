@@ -308,24 +308,19 @@
           
         <p>在国内时访问谷歌， 就是标准的代理模式。 通过VPN进行科学上网， VPN就是一个代理</p>
 <span id="more"></span>
-<h1>什么是代理模式</h1>
-<p>给某一个对象提供一个代理，并由代理对象来<strong>控制</strong>对真实对象的访问。</p>
-<p>代理模式场景描述：</p>
+
+<h1 id="什么是代理模式"><a href="#什么是代理模式" class="headerlink" title="什么是代理模式"></a>什么是代理模式</h1><p>给某一个对象提供一个代理，并由代理对象来<strong>控制</strong>对真实对象的访问。</p>
+<p>代理模式场景描述：　　　　</p>
 <ul>
 <li>当我们想要隐藏某个类时，可以为其提供代理类；</li>
-<li>当一个类需要对不同的调用者提供不同的调用权限时，可以使用代理类来实现（代理类不一定只有一个，我们可以建立多个代理类来实现，也可以在一个代理类中进行权限判断来进行不同权限的功能调用）；</li>
+<li>当一个类需要对不同的调用者提供不同的调用权限时，可以使用代理类来实现（代理类不一定只有一个，我们可以建立多个代理类来实现，也可以在一个代理类中进行权限判断来进行不同权限的功能调用）；　　　　</li>
 <li>当我们要扩展某个类的某个功能时，可以使用代理模式，在代理类中进行简单扩展（只针对简单扩展，可在引用委托类的语句之前与之后进行）。</li>
 </ul>
-<h1>代理模式组成</h1>
-<p><strong>抽象对象</strong>: Subject<br>
-<strong>目标对象</strong>: RealSubject, 委托类<br>
-<strong>代理对象</strong>: ProxySubject, 代理类</p>
-<h1>代理模式UML</h1>
-<p><img src="%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F.png" alt="代理模式"></p>
-<h1>举例</h1>
-<p>举个例子， 常见的对用户信息的查询、更新操作<br>
-首先定义UserService(Subject)接口， 接口中有两个方法</p>
+<h1 id="代理模式组成"><a href="#代理模式组成" class="headerlink" title="代理模式组成"></a>代理模式组成</h1><p><strong>抽象对象</strong>: Subject<br><strong>目标对象</strong>: RealSubject, 委托类<br><strong>代理对象</strong>: ProxySubject, 代理类</p>
+<h1 id="代理模式UML"><a href="#代理模式UML" class="headerlink" title="代理模式UML"></a>代理模式UML</h1><p><img src="/2019/12/21/design-pattern/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F.png" alt="代理模式"></p>
+<h1 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h1><p>举个例子， 常见的对用户信息的查询、更新操作<br>首先定义UserService(Subject)接口， 接口中有两个方法</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">select</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">update</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>接着定义UserServiceImpl(RealSubject), 实现UserService接口</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">select</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;select by name!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">update</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;update by id!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>将通过代理对访问 UserServiceImpl 时进行控制，在调用 select 和 update 之前打印日志</p>
@@ -342,28 +337,24 @@ update by id!
 log end time [Mon Dec 16 18:21:29 CST 2019] 
 </code></pre>
 <p>通过代理对象UserServiceProxy， 我们对UserServiceImpl进行间接访问， 并且对目标对象的方法执行前后进行了日志打印，而且对代码没有侵入性。</p>
-<h1>代理模式的特点</h1>
-<ul>
-<li>代理类与委托类实现同一接口</li>
+<h1 id="代理模式的特点"><a href="#代理模式的特点" class="headerlink" title="代理模式的特点"></a>代理模式的特点</h1><ul>
+<li>代理类与委托类实现同一接口　　　　</li>
 <li>在委托类中实现功能，在代理类的方法中中引用委托类的同名方法</li>
 <li>外部类调用委托类某个方法时，直接以接口指向代理类的实例，这正是代理的意义所在：控制。</li>
 </ul>
-<h1>存在什么问题</h1>
-<p>刚才例子中我们使用的是<strong>静态代理</strong>，静态代理已经完美解决了打印日志的问题。但是，如果我们需要对代理类100个方法的都打印方法执行前和执行后，同样的代码至少需要重复100次。 如果再受不同的委托，实现100个代理类，同样的代码也至少需要重复多次。因此，静态代理至少有以下两个局限性问题：</p>
+<h1 id="存在什么问题"><a href="#存在什么问题" class="headerlink" title="存在什么问题"></a>存在什么问题</h1><p>刚才例子中我们使用的是<strong>静态代理</strong>，静态代理已经完美解决了打印日志的问题。但是，如果我们需要对代理类100个方法的都打印方法执行前和执行后，同样的代码至少需要重复100次。 如果再受不同的委托，实现100个代理类，同样的代码也至少需要重复多次。因此，静态代理至少有以下两个局限性问题：</p>
 <ul>
 <li>如果同时代理多个类，依然会导致类无限制扩展</li>
 <li>如果类中有多个方法，同样的逻辑需要反复实现</li>
 </ul>
 <p>这个时候就需要<strong>动态代理</strong>了，后续的文章会讲到。</p>
-<h1>代理模式与装饰者模式、适配器模式的区别</h1>
-<blockquote>
+<h1 id="代理模式与装饰者模式、适配器模式的区别"><a href="#代理模式与装饰者模式、适配器模式的区别" class="headerlink" title="代理模式与装饰者模式、适配器模式的区别"></a>代理模式与装饰者模式、适配器模式的区别</h1><blockquote>
 <p>装饰者模式相比于代理模式， 不同点在于装饰者为对象增加行为， 代理模式控制对象的访问，让用户通过代理来访问RealSubject， 而不是直接访问。</p>
 </blockquote>
 <blockquote>
 <p>适配器模式会改变对象适配的接口， 而代理模式实现的是相同的接口</p>
 </blockquote>
-<h1>代理模式的应用</h1>
-<ul>
+<h1 id="代理模式的应用"><a href="#代理模式的应用" class="headerlink" title="代理模式的应用"></a>代理模式的应用</h1><ul>
 <li>日志打印 （如文中举的例子）</li>
 <li>事务提交或回退（Web开发中很常见）</li>
 <li>权限管理</li>
@@ -383,7 +374,7 @@ log end time [Mon Dec 16 18:21:29 CST 2019]
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">什么是代理模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">代理模式组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">代理模式UML</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">举例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">代理模式的特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">存在什么问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">代理模式与装饰者模式、适配器模式的区别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">8.</span> <span class="toc-text">代理模式的应用</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.</span> <span class="toc-text">什么是代理模式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E7%BB%84%E6%88%90"><span class="toc-number">2.</span> <span class="toc-text">代理模式组成</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8FUML"><span class="toc-number">3.</span> <span class="toc-text">代理模式UML</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BE%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">举例</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E7%9A%84%E7%89%B9%E7%82%B9"><span class="toc-number">5.</span> <span class="toc-text">代理模式的特点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AD%98%E5%9C%A8%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98"><span class="toc-number">6.</span> <span class="toc-text">存在什么问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E4%B8%8E%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F%E3%80%81%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">7.</span> <span class="toc-text">代理模式与装饰者模式、适配器模式的区别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-number">8.</span> <span class="toc-text">代理模式的应用</span></a></li></ol>
         
     </div>
     <style>

@@ -311,8 +311,8 @@
           
         <p>聚簇索引到底是什么索引？ 覆盖索引又是怎么回事？</p>
 <span id="more"></span>
-<h1>聚簇索引</h1>
-<p><strong>定义</strong>：</p>
+
+<h1 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h1><p><strong>定义</strong>：</p>
 <pre><code>聚簇索引并不是一种新数据结构， 而是 B-Tree 索引的一种存储方式，保存的是 B-Tree 索引和数据行。在 InnoDB 引擎下， 聚簇索引与主键索引是等价的。
 </code></pre>
 <ul>
@@ -324,31 +324,25 @@
 <p><img src="/cluster_index.jpg" alt="聚簇索引示例"></p>
 <p><strong>特性</strong>：</p>
 <ul>
-<li>
-<p>数据行的逻辑顺序与聚簇索引的顺序一致，B+树中叶子结点以链表的形式串联的，叶子节点中数据行的逻辑顺序只有一种，所以一张表只能有一个聚簇索引。</p>
+<li><p>数据行的逻辑顺序与聚簇索引的顺序一致，B+树中叶子结点以链表的形式串联的，叶子节点中数据行的逻辑顺序只有一种，所以一张表只能有一个聚簇索引。</p>
 </li>
-<li>
-<p>叶子结点包含了数据行的完整数据，非叶子节点只包含索引列数据。</p>
+<li><p>叶子结点包含了数据行的完整数据，非叶子节点只包含索引列数据。</p>
 </li>
-<li>
-<p>通过聚簇索引，能够更快地找到数据所在的页，如果表中数据很多，能够有效节省磁盘 IO 次数。</p>
+<li><p>通过聚簇索引，能够更快地找到数据所在的页，如果表中数据很多，能够有效节省磁盘 IO 次数。</p>
 </li>
 </ul>
-<h1>二级索引（非聚簇索引）</h1>
-<p>InnoDB 中除过主键索引， 其余的统称为二级索引，二级索引会在叶子节点保存主键。<br>
-当通过二级索引进行查找时， 二级索引会通过叶子结点找到主键， 然后再根据主键找到数据所在的行， 这样做的好处是减少了数据行移动和页分裂时二级索引的维护工作, 但是通过二级索引查找数据时相当于利用了两个 B 树, 要解决这种问题需要引入<strong>覆盖索引</strong>， 覆盖索引接下来我们会讲到。</p>
+<h1 id="二级索引（非聚簇索引）"><a href="#二级索引（非聚簇索引）" class="headerlink" title="二级索引（非聚簇索引）"></a>二级索引（非聚簇索引）</h1><p>InnoDB 中除过主键索引， 其余的统称为二级索引，二级索引会在叶子节点保存主键。<br>当通过二级索引进行查找时， 二级索引会通过叶子结点找到主键， 然后再根据主键找到数据所在的行， 这样做的好处是减少了数据行移动和页分裂时二级索引的维护工作, 但是通过二级索引查找数据时相当于利用了两个 B 树, 要解决这种问题需要引入<strong>覆盖索引</strong>， 覆盖索引接下来我们会讲到。</p>
 <p><img src="/cluster_index.png" alt="InnoDB 聚簇索引"> <img src="/secondary_index.png" alt="InnoDB 二级索引"></p>
 <p>在实际的查找过程如下：</p>
 <p><img src="/b-tree-index.jpg" alt="实际查找过程"></p>
-<p>以 Tom 为例， 在二级索引key(b, c)中， 先找到 b = 22 and c = tom 的行， 同时得到row id = 30， 根据 row id 回到主键索引， 就能找到 row id = 30 的所有数据。</p>
-<h1>聚簇索引的优缺点</h1>
-<p>优点：</p>
+<p>以 Tom 为例， 在二级索引key(b, c)中， 先找到 b &#x3D; 22 and c &#x3D; tom 的行， 同时得到row id &#x3D; 30， 根据 row id 回到主键索引， 就能找到 row id &#x3D; 30 的所有数据。</p>
+<h1 id="聚簇索引的优缺点"><a href="#聚簇索引的优缺点" class="headerlink" title="聚簇索引的优缺点"></a>聚簇索引的优缺点</h1><p>优点：</p>
 <ul>
 <li>聚簇索引将索引与数据行保存在同一个 B-Tree 中， 查询通过聚簇索引就能够直接得到数据，而非聚簇索引则需要多次 IO， 所以聚簇索引的查询速度比非聚簇索引的速度更快；</li>
 <li>聚簇索引对主键的范围查询效率很高， 因为聚簇索引的数据是按主键排列的；</li>
 <li>覆盖索引扫描的查询可以直接使用页节点中的主键值。</li>
 </ul>
-<p>缺点：</p>
+<p>缺点： </p>
 <ul>
 <li>聚簇索引的优势在于减少 IO， 如果查询的数据都在内存中那么对访问顺序就没那么重要了；</li>
 <li>插入的速度严重依赖于插入的顺序，按主键的顺序插入是最快的，否则会出现页分裂这种情况。对于 InnoDB 引擎的表都会定义一个自增 id；</li>
@@ -356,20 +350,23 @@
 <li>聚簇索引会导致全表扫描变慢，尤其是行比较稀疏，或者由于页分裂导致数据存储不连续的时候（<strong>所以不要使用 uuid 作为主键</strong>）。</li>
 <li>二级索引（非聚簇索引）可能比想象的要更大，因为在二级索引的叶子节点包含了引用行的主键列。</li>
 </ul>
-<h1>覆盖索引</h1>
-<p>定义：</p>
+<h1 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h1><p>定义：</p>
 <pre><code>覆盖索引（covering index）指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取。也称之为索引覆盖。
 </code></pre>
 <p>举个例子, 此时 tb_user 中只有主键索引：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">-- 添加覆盖索引前</span><br><span class="line">mysql&gt; select <span class="title function_">count</span><span class="params">(name)</span> from tb_user where name like <span class="string">&#x27;jSMfqpA%&#x27;</span>;</span><br><span class="line">+-------------+</span><br><span class="line">| count(name) |</span><br><span class="line">+-------------+</span><br><span class="line">|           <span class="number">2</span> |</span><br><span class="line">+-------------+</span><br><span class="line"><span class="number">1</span> row in <span class="title function_">set</span> <span class="params">(<span class="number">0.15</span> sec)</span>  # 耗时 <span class="number">0.15</span> 秒</span><br><span class="line"></span><br><span class="line">-- 新增索引</span><br><span class="line">mysql&gt; create index idx_tb_user_name on <span class="title function_">tb_user</span><span class="params">(name)</span>;</span><br><span class="line"></span><br><span class="line">+----------+------------+--------------------------------------------------------------+</span><br><span class="line">| Query_ID | Duration   | Query                                                        |</span><br><span class="line">+----------+------------+--------------------------------------------------------------+</span><br><span class="line">|       <span class="number">10</span> | <span class="number">0.00029900</span> | select <span class="title function_">count</span><span class="params">(name)</span> from tb_user where name like <span class="string">&#x27;jSMfqpA%&#x27;</span>   |</span><br><span class="line">+----------+------------+--------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
 <p>name 字段新增索引后耗时 0.29 毫秒， 与之前无索引时性能差了近千倍。</p>
 <p>对比下同样是有索引的字段， 但不是覆盖索引的查询：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+----------+------------+--------------------------------------------------------------------+</span><br><span class="line">| Query_ID | Duration   | Query                                                              |</span><br><span class="line">+----------+------------+--------------------------------------------------------------------+</span><br><span class="line">|       <span class="number">16</span> | <span class="number">0.00863500</span> | select <span class="title function_">count</span><span class="params">(name)</span> from tb_user where birth &gt; <span class="string">&#x27;2020-01-01&#x27;</span>         |</span><br><span class="line">+----------+------------+--------------------------------------------------------------------+</span><br></pre></td></tr></table></figure>
+
 <p>可以看到同样是索引的字段， 覆盖索引查询与非覆盖索引的查询也相差一个量级， 索引与非索引的查询性能更是相差千倍。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; explain select <span class="title function_">count</span><span class="params">(name)</span> from tb_user where name like <span class="string">&#x27;jSMfqpA%&#x27;</span> \G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: range</span><br><span class="line">possible_keys: idx_tb_user_name</span><br><span class="line">          key: idx_tb_user_name</span><br><span class="line">      key_len: <span class="number">13</span></span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: <span class="number">2</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: Using where; Using index  # 使用到索引查询且未覆盖索引</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql&gt; explain  select <span class="title function_">count</span><span class="params">(name)</span> from tb_user where birth &gt; <span class="string">&#x27;2020-01-01&#x27;</span> \G;</span><br><span class="line">*************************** <span class="number">1.</span> row ***************************</span><br><span class="line">           id: <span class="number">1</span></span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: tb_user</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: range</span><br><span class="line">possible_keys: idx_tb_user_birth</span><br><span class="line">          key: idx_tb_user_birth</span><br><span class="line">      key_len: <span class="number">4</span></span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: <span class="number">2962</span></span><br><span class="line">     filtered: <span class="number">100.00</span></span><br><span class="line">        Extra: Using index condition  # 使用到索引查询，但非覆盖索引</span><br><span class="line"><span class="number">1</span> row in set, <span class="number">1</span> warning (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+
 <p>总结：</p>
 <ul>
-<li>当一条查询语句符合覆盖索引条件时，MySQL 只需要通过索引就可以返回查询所需要的数据，这样避免了查到索引后再回表查询，减少I/O提高效率。</li>
+<li>当一条查询语句符合覆盖索引条件时，MySQL 只需要通过索引就可以返回查询所需要的数据，这样避免了查到索引后再回表查询，减少I&#x2F;O提高效率。</li>
 <li>InnoDB使用聚集索引存储数据，如果二级索引中包含查询所需的数据，就不再需要在聚集索引中查找了。</li>
 </ul>
 
@@ -387,7 +384,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">聚簇索引</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">二级索引（非聚簇索引）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">聚簇索引的优缺点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">覆盖索引</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">聚簇索引</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%EF%BC%88%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">二级索引（非聚簇索引）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">聚簇索引的优缺点</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95"><span class="toc-number">4.</span> <span class="toc-text">覆盖索引</span></a></li></ol>
         
     </div>
     <style>

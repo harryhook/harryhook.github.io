@@ -306,80 +306,59 @@
           
         <p>优化器存在哪些问题？ 日常的查询需要注意哪些点？</p>
 <span id="more"></span>
-<h1>查询优化器存在的问题</h1>
-<h2 id="关联子查询">关联子查询</h2>
-<p>常见的一种查询， 希望找到 Sakila 数据库中， 演员 PG(actor_id = 1) 所参演的影片信息, 一般来讲我们都会以下面的方式完成子查询：</p>
+
+<h1 id="查询优化器存在的问题"><a href="#查询优化器存在的问题" class="headerlink" title="查询优化器存在的问题"></a>查询优化器存在的问题</h1><h2 id="关联子查询"><a href="#关联子查询" class="headerlink" title="关联子查询"></a>关联子查询</h2><p>常见的一种查询， 希望找到 Sakila 数据库中， 演员 PG(actor_id &#x3D; 1) 所参演的影片信息, 一般来讲我们都会以下面的方式完成子查询：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM sakila.film</span><br><span class="line">-&gt; WHERE film_id <span class="title function_">IN</span><span class="params">(</span></span><br><span class="line"><span class="params">-&gt; SELECT film_id FROM sakila.film_actor WHERE actor_id = <span class="number">1</span>)</span>;</span><br></pre></td></tr></table></figure>
 <p>大多数情况下我们都会以为上面的语句执行时会按照下面的顺序执行：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-- SELECT <span class="title function_">GROUP_CONCAT</span><span class="params">(film_id)</span> FROM sakila.film_actor <span class="type">WHERE</span> <span class="variable">actor_id</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">-- Result: <span class="number">1</span>,<span class="number">23</span>,<span class="number">25</span>,<span class="number">106</span>,<span class="number">140</span>,<span class="number">166</span>,<span class="number">277</span>,<span class="number">361</span>,<span class="number">438</span>,<span class="number">499</span>,<span class="number">506</span>,<span class="number">509</span>,<span class="number">605</span>,<span class="number">635</span>,<span class="number">749</span>,<span class="number">832</span>,<span class="number">939</span>,<span class="number">970</span>,<span class="number">980</span> </span><br><span class="line"></span><br><span class="line">SELECT * FROM sakila.film</span><br><span class="line">WHERE film_id <span class="title function_">IN</span><span class="params">(<span class="number">1</span>,<span class="number">23</span>,<span class="number">25</span>,<span class="number">106</span>,<span class="number">140</span>,<span class="number">166</span>,<span class="number">277</span>,<span class="number">361</span>,<span class="number">438</span>,<span class="number">499</span>,<span class="number">506</span>,<span class="number">509</span>,<span class="number">605</span>,<span class="number">635</span>,<span class="number">749</span>,<span class="number">832</span>,<span class="number">939</span>,<span class="number">970</span>,<span class="number">980</span>)</span>;</span><br></pre></td></tr></table></figure>
-<p>但是时间情况却是MySQL 会先全表扫描 film 表， 然后进行子查询，依次比对 film 表中的 film_id 与 file_actor 表中 actor_id = 1的 film_id， sql 在执行时将会改写成以下语句：</p>
+<p>但是时间情况却是MySQL 会先全表扫描 film 表， 然后进行子查询，依次比对 film 表中的 film_id 与 file_actor 表中 actor_id &#x3D; 1的 film_id， sql 在执行时将会改写成以下语句：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM sakila.film </span><br><span class="line">WHERE <span class="title function_">EXISTS</span> <span class="params">(</span></span><br><span class="line"><span class="params">    SELECT * FROM sakila.film_actor WHERE actor_id = <span class="number">1</span></span></span><br><span class="line"><span class="params">    AND film_actor.film_id = film.film_id)</span>;</span><br></pre></td></tr></table></figure>
 <p>如果外层的表 film 数据量并不是很大的时候， 对性能的影响不会引起注意， 如果外层的表很大， 这个查询的性能就会很糟糕， 常见的一个优化的方式为：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT film.* FROM sakila.film</span><br><span class="line">-&gt; INNER JOIN sakila.film_actor <span class="title function_">USING</span><span class="params">(film_id)</span> </span><br><span class="line">-&gt; <span class="type">WHERE</span> <span class="variable">actor_id</span> <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-<p>至于使用子查询还是内/外连接， 需要看具体的执行计划， 并不一定说内/外连接的性能一定比子查询好。</p>
-<h2 id="UNION-限制">UNION 限制</h2>
-<p>UNION 的限制条件只对已联合的数据生效， 如果想得到更好的性能则需要在联合前就对数据做出限制：</p>
+<p>至于使用子查询还是内&#x2F;外连接， 需要看具体的执行计划， 并不一定说内&#x2F;外连接的性能一定比子查询好。</p>
+<h2 id="UNION-限制"><a href="#UNION-限制" class="headerlink" title="UNION 限制"></a>UNION 限制</h2><p>UNION 的限制条件只对已联合的数据生效， 如果想得到更好的性能则需要在联合前就对数据做出限制：</p>
 <p>比如, actor 有 200 条数据， customer 有 599 条数据，按 last_name 合并后， 会生成一张含有 799 条数据的临时表， 然后再从临时表去除 20 条数据：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(SELECT first_name, last_name FROM sakila.actor</span><br><span class="line">ORDER BY last_name)</span><br><span class="line">UNION <span class="title function_">ALL</span></span><br><span class="line"><span class="params">(SELECT first_name, last_name</span></span><br><span class="line"><span class="params">FROM sakila.customer</span></span><br><span class="line"><span class="params">ORDER BY last_name)</span> LIMIT <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
 <p>数据量很大时， 临时表可能会很大， 可以在 UNION 的子查询中加上 LIMIT 来减少临时表的数据：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(SELECT first_name, last_name FROM sakila.actor</span><br><span class="line">ORDER BY last_name</span><br><span class="line">LIMIT <span class="number">20</span>)</span><br><span class="line">UNION <span class="title function_">ALL</span></span><br><span class="line"><span class="params">(SELECT first_name, last_name</span></span><br><span class="line"><span class="params">FROM sakila.customer ORDER BY last_name LIMIT <span class="number">20</span>)</span></span><br><span class="line">LIMIT <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="索引合并优化">索引合并优化</h2>
-<p>当查询语句中有 OR 时, 会求并集。查询SELECT * FROM TB1 WHERE c1=“xxx” OR c2=&quot;&quot;xxx&quot;时，如果c1和c2列上分别有索引，可以按照c1和c2条件进行查询，再将查询结果合并（union）操作。</p>
-<p>当查询语句中有 OR 时, 会求交集。如查询SELECT * FROM TB1 WHERE c1=“xxx” AND c2=&quot;&quot;xxx&quot;时，如果c1和c2列上分别有索引，可以按照c1和c2条件进行查询，再将查询结果取交集（intersect）操作。</p>
+
+<h2 id="索引合并优化"><a href="#索引合并优化" class="headerlink" title="索引合并优化"></a>索引合并优化</h2><p>当查询语句中有 OR 时, 会求并集。查询SELECT * FROM TB1 WHERE c1&#x3D;”xxx” OR c2&#x3D;””xxx”时，如果c1和c2列上分别有索引，可以按照c1和c2条件进行查询，再将查询结果合并（union）操作。</p>
+<p>当查询语句中有 OR 时, 会求交集。如查询SELECT * FROM TB1 WHERE c1&#x3D;”xxx” AND c2&#x3D;””xxx”时，如果c1和c2列上分别有索引，可以按照c1和c2条件进行查询，再将查询结果取交集（intersect）操作。</p>
 <p>索引索引合并的性能并不及复合索引。</p>
-<h2 id="等值传递">等值传递</h2>
-<p>非常大的 IN()列表 MySQL 优化器会将这个列表的值与另一个表做关联，类似于子查询是对 IN 语句的改写。</p>
-<h2 id="哈希关联">哈希关联</h2>
-<p>MySQL 的查询都是嵌套循环查询， 不支持哈希关联。</p>
-<h2 id="松散索引扫描">松散索引扫描</h2>
-<p>MySQL 的索引扫描需要指定起点和终点。假设有索引 key(a,b), 如何查询的语句中只要字段 b， MySQL 是无法使用这个索引的， 只能通过全表扫描查找数据。<br>
-而松散索引是先扫描 a 列对应的 b 列的范围，再跳到 a 列第二个不同值扫描对应 b 列的范围。更好的做法是为 b 增加一个索引，但是也会遇到第一列为范围查询， 第二列为等值查询的情况。</p>
-<h2 id="最大最小值优化">最大最小值优化</h2>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT <span class="title function_">MIN</span><span class="params">(actor_id)</span> FROM sakila.actor <span class="type">WHERE</span> <span class="variable">first_name</span> <span class="operator">=</span> <span class="string">&#x27;PENELOPE&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="等值传递"><a href="#等值传递" class="headerlink" title="等值传递"></a>等值传递</h2><p>非常大的 IN()列表 MySQL 优化器会将这个列表的值与另一个表做关联，类似于子查询是对 IN 语句的改写。</p>
+<h2 id="哈希关联"><a href="#哈希关联" class="headerlink" title="哈希关联"></a>哈希关联</h2><p>MySQL 的查询都是嵌套循环查询， 不支持哈希关联。 </p>
+<h2 id="松散索引扫描"><a href="#松散索引扫描" class="headerlink" title="松散索引扫描"></a>松散索引扫描</h2><p>MySQL 的索引扫描需要指定起点和终点。假设有索引 key(a,b), 如何查询的语句中只要字段 b， MySQL 是无法使用这个索引的， 只能通过全表扫描查找数据。<br> 而松散索引是先扫描 a 列对应的 b 列的范围，再跳到 a 列第二个不同值扫描对应 b 列的范围。更好的做法是为 b 增加一个索引，但是也会遇到第一列为范围查询， 第二列为等值查询的情况。</p>
+<h2 id="最大最小值优化"><a href="#最大最小值优化" class="headerlink" title="最大最小值优化"></a>最大最小值优化</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT <span class="title function_">MIN</span><span class="params">(actor_id)</span> FROM sakila.actor <span class="type">WHERE</span> <span class="variable">first_name</span> <span class="operator">=</span> <span class="string">&#x27;PENELOPE&#x27;</span>;</span><br></pre></td></tr></table></figure>
 <p>first_name 没有索引时， 会进行全表扫描。 当进行主键扫描时（actor_id）为主键， 读到的第一行记录就是最小值。此时采用 LIMIT 将查询重写：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT actor_id FROM sakila.actor USE <span class="title function_">INDEX</span><span class="params">(PRIMARY)</span></span><br><span class="line">    -&gt; <span class="type">WHERE</span> <span class="variable">first_name</span> <span class="operator">=</span> <span class="string">&#x27;PENELOPE&#x27;</span> LIMIT <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 <p>虽然进行了优化， 但是会让人产生迷惑，不知到这个 sql 语句想表达什么。</p>
-<h2 id="同一个表的查询与更新">同一个表的查询与更新</h2>
-<p>MySQL 不允许对同一张表同时进行查询和更新。</p>
-<h1>优化特定的类型</h1>
-<h2 id="优化-COUNT">优化 COUNT()</h2>
-<p>COUNT()函数有两个作用：</p>
+<h2 id="同一个表的查询与更新"><a href="#同一个表的查询与更新" class="headerlink" title="同一个表的查询与更新"></a>同一个表的查询与更新</h2><p>MySQL 不允许对同一张表同时进行查询和更新。</p>
+<h1 id="优化特定的类型"><a href="#优化特定的类型" class="headerlink" title="优化特定的类型"></a>优化特定的类型</h1><h2 id="优化-COUNT"><a href="#优化-COUNT" class="headerlink" title="优化 COUNT()"></a>优化 COUNT()</h2><p>COUNT()函数有两个作用：</p>
 <ul>
 <li>统计某个列值的数量。 统计列值时要求列值是非空的（NOT NULL）或者表达式的值补不为NULL。</li>
 <li>统计结果集的行数。COUNT(*）时， * 并不会扩展成所有列，而是直接统计行数。</li>
 </ul>
-<p>MyISAM count()的速度很快是因为前提条件是没有任何WERE条件的COUNT(<em>)。<br>
-技巧1： 查询一个很多行时， 反向查询<br>
-SELECT (SELECT COUNT(</em>) FROM CITY ) - COUNT(*) FROM CITY WHERE id &lt;= 5; 可以迅速查的id大于5的城市<br>
-技巧2：COUNT 替代SUM<br>
-SELECT COUNT(color = ‘blue’ OR NULL) as blue, COUNT(color = ‘red’ OR NULL) as red FR0M ITEMS;</p>
-<h2 id="优化关联查询">优化关联查询</h2>
-<ul>
+<p>MyISAM count()的速度很快是因为前提条件是没有任何WERE条件的COUNT(<em>)。<br>技巧1： 查询一个很多行时， 反向查询<br>SELECT (SELECT COUNT(</em>) FROM CITY ) - COUNT(*) FROM CITY WHERE id &lt;&#x3D; 5; 可以迅速查的id大于5的城市<br>技巧2：COUNT 替代SUM<br>SELECT COUNT(color &#x3D; ‘blue’ OR NULL) as blue, COUNT(color &#x3D; ‘red’ OR NULL) as red FR0M ITEMS;</p>
+<h2 id="优化关联查询"><a href="#优化关联查询" class="headerlink" title="优化关联查询"></a>优化关联查询</h2><ul>
 <li>当表 A 与表 B 关联是， 只需要在关联顺序的第二张表相应列创建索引即可</li>
 <li>GROUP BY 和 ORDER BY 只涉及到一个表的列才能使 MySQL 索引生效</li>
 </ul>
-<h2 id="优化子查询">优化子查询</h2>
-<p>子查询尽量使用关联来代替， “尽可能地使用关联”，但不一定正确。</p>
-<h2 id="优化-GROUP-BY">优化 GROUP BY</h2>
-<p>无法使用索引时， GROUP BY 使用临时表或者文件排序来实现分组</p>
-<h2 id="优化-LIMIT分页">优化 LIMIT分页</h2>
-<p>LIMIT 分页时需要留意偏移量， 特别是偏移量非常大的时候， 例如 LIMIT 1000, 20, 只返回了最后20条数据， 前面的 1000 条被丢弃。<br>
-采用延迟关联, 获取需要访问的数据后再根据关联列会原表查询所需要的列</p>
+<h2 id="优化子查询"><a href="#优化子查询" class="headerlink" title="优化子查询"></a>优化子查询</h2><p>子查询尽量使用关联来代替， “尽可能地使用关联”，但不一定正确。</p>
+<h2 id="优化-GROUP-BY"><a href="#优化-GROUP-BY" class="headerlink" title="优化 GROUP BY"></a>优化 GROUP BY</h2><p>无法使用索引时， GROUP BY 使用临时表或者文件排序来实现分组</p>
+<h2 id="优化-LIMIT分页"><a href="#优化-LIMIT分页" class="headerlink" title="优化 LIMIT分页"></a>优化 LIMIT分页</h2><p>LIMIT 分页时需要留意偏移量， 特别是偏移量非常大的时候， 例如 LIMIT 1000, 20, 只返回了最后20条数据， 前面的 1000 条被丢弃。<br>采用延迟关联, 获取需要访问的数据后再根据关联列会原表查询所需要的列</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT film_id, description FROM film ORDER BY title LIMIT <span class="number">50</span>, <span class="number">5</span>;</span><br><span class="line">改写成：</span><br><span class="line">SELECT film_id, description </span><br><span class="line">FROM film</span><br><span class="line">    INNER <span class="title function_">JOIN</span><span class="params">(</span></span><br><span class="line"><span class="params">        SELECT film_id FROM film ORDER BY title LIMIT <span class="number">50</span>, <span class="number">5</span></span></span><br><span class="line"><span class="params">    )</span> AS lim <span class="title function_">UNSING</span><span class="params">(film_id)</span>;</span><br></pre></td></tr></table></figure>
-<p>或者将 LIMIT 查询转换成已知位置查询<br>
-SELECT film_id, description FROM film WHERE position； BETWEEN 50 AND 54  ORDER BY position；</p>
+
+<p>或者将 LIMIT 查询转换成已知位置查询<br>SELECT film_id, description FROM film WHERE position； BETWEEN 50 AND 54  ORDER BY position；</p>
 <p>OFFSET 在使用时可以记录上一次查询的位置配合 LIMIT 使用</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM rental WHERE  ORDER BY rental_id DESC LIMIT <span class="number">16049</span>, <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">SELECT * FROM rental WHERE rental_id &lt; <span class="number">16030</span> ORDER BY rental_id DESC LIMIT <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="优化-UNION">优化 UNION</h2>
-<p>UNION在使用时要注意是否是UNION ALL， 否则在查询时还需要对临时表去重</p>
-<h2 id="使用自定义变量">使用自定义变量</h2>
-<p>使用自定义变量需要注意：</p>
+<h2 id="优化-UNION"><a href="#优化-UNION" class="headerlink" title="优化 UNION"></a>优化 UNION</h2><p>UNION在使用时要注意是否是UNION ALL， 否则在查询时还需要对临时表去重</p>
+<h2 id="使用自定义变量"><a href="#使用自定义变量" class="headerlink" title="使用自定义变量"></a>使用自定义变量</h2><p>使用自定义变量需要注意：</p>
 <ul>
 <li>使用自定义变量时， 无法查询缓存；</li>
 <li>不能在使用常量、标识符的地方使用自定义变量，例如表名、列名、LIMIT 子句中；</li>
 <li>用户的自定义变量只在一个session中有效， 不能做为连接间的通信；</li>
 <li>不能显示声明自定义变量的类型；赋值为0默认为整形， 0.0为浮点型， ‘’为字符串；</li>
-<li>赋值符号  := 的优先级非常低；</li>
+<li>赋值符号  :&#x3D; 的优先级非常低；</li>
 <li>自定义变量不会产生语法错误。</li>
 </ul>
 
@@ -397,7 +376,7 @@ SELECT film_id, description FROM film WHERE position； BETWEEN 50 AND 54  ORDER
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">查询优化器存在的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E8%81%94%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.1.</span> <span class="toc-text">关联子查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UNION-%E9%99%90%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">UNION 限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">索引合并优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AD%89%E5%80%BC%E4%BC%A0%E9%80%92"><span class="toc-number">1.4.</span> <span class="toc-text">等值传递</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E5%85%B3%E8%81%94"><span class="toc-number">1.5.</span> <span class="toc-text">哈希关联</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%BE%E6%95%A3%E7%B4%A2%E5%BC%95%E6%89%AB%E6%8F%8F"><span class="toc-number">1.6.</span> <span class="toc-text">松散索引扫描</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%A4%A7%E6%9C%80%E5%B0%8F%E5%80%BC%E4%BC%98%E5%8C%96"><span class="toc-number">1.7.</span> <span class="toc-text">最大最小值优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E4%B8%AA%E8%A1%A8%E7%9A%84%E6%9F%A5%E8%AF%A2%E4%B8%8E%E6%9B%B4%E6%96%B0"><span class="toc-number">1.8.</span> <span class="toc-text">同一个表的查询与更新</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">优化特定的类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-COUNT"><span class="toc-number">2.1.</span> <span class="toc-text">优化 COUNT()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.2.</span> <span class="toc-text">优化关联查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.3.</span> <span class="toc-text">优化子查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-GROUP-BY"><span class="toc-number">2.4.</span> <span class="toc-text">优化 GROUP BY</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-LIMIT%E5%88%86%E9%A1%B5"><span class="toc-number">2.5.</span> <span class="toc-text">优化 LIMIT分页</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-UNION"><span class="toc-number">2.6.</span> <span class="toc-text">优化 UNION</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F"><span class="toc-number">2.7.</span> <span class="toc-text">使用自定义变量</span></a></li></ol></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E5%99%A8%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.</span> <span class="toc-text">查询优化器存在的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E8%81%94%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.1.</span> <span class="toc-text">关联子查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UNION-%E9%99%90%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text">UNION 限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E5%90%88%E5%B9%B6%E4%BC%98%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">索引合并优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AD%89%E5%80%BC%E4%BC%A0%E9%80%92"><span class="toc-number">1.4.</span> <span class="toc-text">等值传递</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E5%85%B3%E8%81%94"><span class="toc-number">1.5.</span> <span class="toc-text">哈希关联</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%BE%E6%95%A3%E7%B4%A2%E5%BC%95%E6%89%AB%E6%8F%8F"><span class="toc-number">1.6.</span> <span class="toc-text">松散索引扫描</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%80%E5%A4%A7%E6%9C%80%E5%B0%8F%E5%80%BC%E4%BC%98%E5%8C%96"><span class="toc-number">1.7.</span> <span class="toc-text">最大最小值优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8C%E4%B8%80%E4%B8%AA%E8%A1%A8%E7%9A%84%E6%9F%A5%E8%AF%A2%E4%B8%8E%E6%9B%B4%E6%96%B0"><span class="toc-number">1.8.</span> <span class="toc-text">同一个表的查询与更新</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E7%89%B9%E5%AE%9A%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">优化特定的类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-COUNT"><span class="toc-number">2.1.</span> <span class="toc-text">优化 COUNT()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.2.</span> <span class="toc-text">优化关联查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.3.</span> <span class="toc-text">优化子查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-GROUP-BY"><span class="toc-number">2.4.</span> <span class="toc-text">优化 GROUP BY</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-LIMIT%E5%88%86%E9%A1%B5"><span class="toc-number">2.5.</span> <span class="toc-text">优化 LIMIT分页</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E5%8C%96-UNION"><span class="toc-number">2.6.</span> <span class="toc-text">优化 UNION</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F"><span class="toc-number">2.7.</span> <span class="toc-text">使用自定义变量</span></a></li></ol></li></ol>
         
     </div>
     <style>
