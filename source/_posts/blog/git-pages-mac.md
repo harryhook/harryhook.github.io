@@ -30,7 +30,7 @@ categories: [建站]
 
 	[Node.js下载](https://nodejs.org/zh-cn/)
     安装完成后， node -v 检查下是否安装完成
-    
+  
 	```java 
 	node -v
 	v11.7.0
@@ -38,7 +38,7 @@ categories: [建站]
 	npm -v
 	6.5.0
 	```
-    
+  
 * github: xxx.github.io (其中xxx是你github的用户名)
 
 	1. 使用邮箱注册github。
@@ -56,7 +56,7 @@ categories: [建站]
 	cd  ~/.ssh
 	ssh-keygen -t rsa -C "你的邮箱地址"   // 然后一路回车
 	
-	vi id_rsa.pub  	// 将id_rsa.pub中的key添加到github中
+	cat id_rsa.pub  	// 将id_rsa.pub中内容添加到github中
 	
 	ssh -T git@github.com   // 测试key是否添加成功
 		

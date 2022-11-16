@@ -9,6 +9,6 @@ date: 2019-10-18 15:56:05
 	
 > 会写点代码的跑步爱好者!
 	
-[![me.jpg](https://s1.ax1x.com/2022/11/13/zFwdeS.jpg)](https://imgse.com/i/zFwdeS)
+[![me.jpg](https://static.jiduapp.cn/optimus/user-upload/96c4fa19fe.jpeg)](https://static.jiduapp.cn/optimus/user-upload/96c4fa19fe.jpeg)
 
 
